@@ -1,4 +1,4 @@
-# Lovie3D — Romantic 3D Memory Universe ♡
+#  A  3D Memory Universe ♡
 
 <div align="center">
 
@@ -134,7 +134,7 @@ You can also open `index.html` directly in modern browsers. The project includes
 
 ## 🙌 Credits & Acknowledgments
 
-Created with love by **[hxni](https://github.com/hxni)** for **Lovie**.
+Created with love by **[hxni](https://github.com/hxni)** .
 
 Special thanks to open-source contributors and 3D model creators for Three.js assets and shaders.
 
@@ -142,6 +142,6 @@ Special thanks to open-source contributors and 3D model creators for Three.js as
 
 <div align="center">
 
-Made with ❤️ by **hxni** for **Lovie**
+Made with ❤️ by **hxni** 
 
 </div>
