@@ -1,0 +1,1618 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <!-- iOS Specific Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Lovie3D — For You ♡">
+
+    <title>Lovie3D — For You ♡</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            font-family: 'Outfit', sans-serif;
+            background: #0d0614;
+            color: #fff;
+        }
+
+        /* Terminal Intro Overlay */
+        #terminal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0a040d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 1;
+            transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #terminal-overlay.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .terminal-box {
+            background: rgba(20, 10, 30, 0.85);
+            border: 1px solid rgba(255, 105, 180, 0.3);
+            border-radius: 16px;
+            padding: 30px 35px;
+            max-width: 580px;
+            width: 90%;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 105, 180, 0.2);
+            backdrop-filter: blur(12px);
+        }
+
+        .terminal-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .terminal-title {
+            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            color: rgba(255, 182, 193, 0.7);
+            margin-left: auto;
+        }
+
+        .terminal-text {
+            color: #00ff88;
+            font-family: 'Fira Code', monospace;
+            font-size: 17px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+            text-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px;
+            height: 20px;
+            background: #00ff88;
+            margin-left: 4px;
+            animation: blink 0.9s infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        /* 3D Canvas */
+        #canvas-container {
+            width: 100%;
+            height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        canvas {
+            display: block;
+            touch-action: none;
+        }
+
+        /* Floating UI Controls & Header */
+        .ui-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 100;
+            pointer-events: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+        }
+
+        .ui-header {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+
+        .brand-badge {
+            pointer-events: auto;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 10px 22px;
+            border-radius: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand-badge h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #fff, #ffb6c1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-badge span {
+            font-size: 12px;
+            color: rgba(255, 192, 203, 0.85);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .controls-group {
+            pointer-events: auto;
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn-glass {
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #fff;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        }
+
+        .btn-glass:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            border-color: rgba(255, 182, 193, 0.6);
+            box-shadow: 0 12px 30px rgba(255, 105, 180, 0.3);
+        }
+
+        .btn-glass.active {
+            background: linear-gradient(135deg, #ff69b4, #da70d6);
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255, 105, 180, 0.6);
+        }
+
+        .ui-footer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .hint-pill {
+            pointer-events: auto;
+            background: rgba(15, 8, 25, 0.7);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 182, 193, 0.3);
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-size: 13px;
+            color: #ffd1dc;
+            letter-spacing: 0.5px;
+            animation: pulseGlow 3s infinite alternate;
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 10px rgba(255, 105, 180, 0.1); }
+            100% { box-shadow: 0 0 20px rgba(255, 105, 180, 0.4); }
+        }
+
+        /* Lightbox Modal for Photo Inspection */
+        #lightbox-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 4, 15, 0.85);
+            backdrop-filter: blur(20px);
+            z-index: 3000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+        }
+
+        #lightbox-modal.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 18px 18px 24px 18px;
+            max-width: 480px;
+            width: 90%;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.8), 0 0 40px rgba(255, 105, 180, 0.3);
+            transform: scale(0.85);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            color: #333;
+            text-align: center;
+        }
+
+        #lightbox-modal.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-img-container {
+            width: 100%;
+            height: 380px;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #f0f0f0;
+            margin-bottom: 16px;
+            position: relative;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .modal-img-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .modal-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 22px;
+            color: #d63384;
+            margin-bottom: 6px;
+        }
+
+        .modal-desc {
+            font-family: 'Outfit', sans-serif;
+            font-size: 14px;
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: -16px;
+            right: -16px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #ff4757;
+            color: #fff;
+            border: 2px solid #fff;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            transition: transform 0.2s ease;
+        }
+
+        .modal-close:hover {
+            transform: scale(1.15);
+        }
+
+        @media (max-width: 600px) {
+            .ui-header {
+                flex-direction: column;
+                gap: 12px;
+                align-items: flex-start;
+            }
+            .brand-badge h1 { font-size: 16px; }
+            .modal-img-container { height: 280px; }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- 3D Canvas -->
+    <div id="canvas-container"></div>
+
+    <!-- UI Overlay Layer -->
+    <div class="ui-layer">
+        <div class="ui-header">
+            <div class="controls-group">
+                <button class="btn-glass" id="music-btn">
+                    <span>🎵</span> <span id="music-btn-text">Music Off</span>
+                </button>
+                <button class="btn-glass" id="reset-btn">
+                    <span>📷</span> Reset View
+                </button>
+            </div>
+        </div>
+
+        <div class="ui-footer">
+            <div class="hint-pill">
+                ✨ Tap any photo memory ring frame to zoom in • Drag to rotate scene
+            </div>
+        </div>
+    </div>
+
+    <!-- Terminal Overlay Intro -->
+    <div id="terminal-overlay">
+        <div class="terminal-box">
+            <div class="terminal-header">
+                <div class="dot dot-red"></div>
+                <div class="dot dot-yellow"></div>
+                <div class="dot dot-green"></div>
+                <div class="terminal-title">lovie3d_init.sh</div>
+            </div>
+            <div class="terminal-text" id="terminal-text"></div>
+        </div>
+    </div>
+
+    <!-- Photo Lightbox Modal -->
+    <div id="lightbox-modal">
+        <div class="modal-card">
+            <button class="modal-close" id="modal-close-btn">✕</button>
+            <div class="modal-img-container">
+                <img id="modal-img" src="" alt="Memory Photo">
+            </div>
+            <h2 class="modal-title" id="modal-title">Memory Title</h2>
+            <p class="modal-desc" id="modal-desc">Romantic caption text here...</p>
+        </div>
+    </div>
+
+    <!-- Three.js Module Importmap -->
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+
+        // ----------------------------------------------------
+        // PHOTO MEMORIES & CAPTIONS DATA
+        // ----------------------------------------------------
+        const photoMemories = [
+            { file: '1.jpeg', title: 'Cherry Blossom Walk', desc: 'Hand in hand beneath soft pink petals in bloom ♡' },
+            { file: '3.jpeg', title: 'Sweet Sundae Date', desc: 'Sharing double scoops, sweet sprinkles, and endless smiles ♡' },
+            { file: '4.jpeg', title: 'Stargazing Night', desc: 'Lying under a million glowing stars wishing for forever ♡' },
+            { file: '5.jpeg', title: 'Fireplace Cozy Cocoa', desc: 'Warm sweaters, hot chocolate, and endless warm hugs ♡' },
+            { file: '6.jpeg', title: 'Tandem Bike Park Ride', desc: 'Cruising together through sunny flower gardens ♡' },
+            { file: '7.jpeg', title: 'Fairy Light Dance', desc: 'Dancing under sparkling lights in our fairytale night ♡' },
+            { file: '8.jpeg', title: 'Silly Memories Selfie', desc: 'Capturing joyful smiles and pure happiness together ♡' },
+            { file: '9.jpeg', title: 'Rainy Day Umbrella', desc: 'Staying warm and close under one little umbrella ♡' },
+            { file: '10.jpeg', title: 'Fireworks Reflection', desc: 'Magic lights in the night sky, brighter love in our hearts ♡' },
+            { file: '11.jpeg', title: 'Winter Wonderland', desc: 'Building cute snowmen and laughing in the snow ♡' },
+            { file: '12.jpeg', title: 'Romantic Dinner Night', desc: 'A special candlelit table dedicated just to you ♡' },
+            { file: 'tavolo2.jpeg', title: 'Unwrapping Love', desc: 'Every single day with you is the sweetest gift ♡' }
+        ];
+
+        // ----------------------------------------------------
+        // TERMINAL TYPEWRITER INTRO
+        // ----------------------------------------------------
+        const terminalText = document.getElementById('terminal-text');
+        const terminalOverlay = document.getElementById('terminal-overlay');
+        const textToType = 'Hey Lovie...\nThis is a little special world I created just for you...\nFor all the times you feel alone or upset...\naccess_granted: I LOVE YOU FOREVER <3';
+
+        let charIndex = 0;
+        function typeWriter() {
+            if (charIndex < textToType.length) {
+                terminalText.textContent += textToType.charAt(charIndex);
+                charIndex++;
+                setTimeout(typeWriter, 40 + Math.random() * 30);
+            } else {
+                const cursor = document.createElement('span');
+                cursor.className = 'cursor';
+                terminalText.appendChild(cursor);
+
+                setTimeout(() => {
+                    terminalOverlay.classList.add('fade-out');
+                    setTimeout(() => {
+                        terminalOverlay.style.display = 'none';
+                    }, 1200);
+                }, 1400);
+            }
+        }
+
+        // ----------------------------------------------------
+        // THREE.JS SCENE SETUP
+        // ----------------------------------------------------
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+
+        // Background loader with cartoon replacement fallback
+        const textureLoader = new THREE.TextureLoader();
+        textureLoader.load(
+            'background.jpg',
+            (texture) => {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                scene.background = texture;
+            },
+            undefined,
+            () => {
+                // Procedural romantic cartoon starry night fallback
+                const canvas = document.createElement('canvas');
+                canvas.width = 1024;
+                canvas.height = 1024;
+                const ctx = canvas.getContext('2d');
+
+                const grad = ctx.createLinearGradient(0, 0, 0, 1024);
+                grad.addColorStop(0, '#1a0933');
+                grad.addColorStop(0.5, '#3b1254');
+                grad.addColorStop(1, '#661b6b');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 1024, 1024);
+
+                // Stars
+                ctx.fillStyle = '#ffffff';
+                for(let i=0; i<300; i++) {
+                    const x = Math.random()*1024;
+                    const y = Math.random()*1024;
+                    const r = Math.random()*2;
+                    ctx.beginPath();
+                    ctx.arc(x, y, r, 0, Math.PI*2);
+                    ctx.fill();
+                }
+
+                const bgTex = new THREE.CanvasTexture(canvas);
+                scene.background = bgTex;
+            }
+        );
+
+        // Camera
+        const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const defaultCamPos = new THREE.Vector3(0, 3.2, 7.5);
+        camera.position.copy(defaultCamPos);
+        camera.lookAt(0, 1.4, 0);
+
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.1;
+        container.appendChild(renderer.domElement);
+
+        // Controls
+        const controls = new OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+        controls.dampingFactor = 0.04;
+        controls.minDistance = 2.5;
+        controls.maxDistance = 14;
+        controls.maxPolarAngle = Math.PI / 2.05;
+        controls.target.set(0, 1.4, 0);
+
+        let isUserInteracting = false;
+        let cameraAngle = 0;
+
+        controls.addEventListener('start', () => { isUserInteracting = true; });
+        controls.addEventListener('end', () => {
+            isUserInteracting = false;
+            cameraAngle = Math.atan2(camera.position.x, camera.position.z);
+        });
+
+        document.getElementById('reset-btn').addEventListener('click', () => {
+            camera.position.copy(defaultCamPos);
+            controls.target.set(0, 1.4, 0);
+            cameraAngle = Math.atan2(defaultCamPos.x, defaultCamPos.z);
+        });
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xfff0f5, 0.7);
+        scene.add(ambientLight);
+
+        const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+        dirLight.position.set(6, 12, 6);
+        dirLight.castShadow = true;
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
+        dirLight.shadow.bias = -0.0001;
+        scene.add(dirLight);
+
+        const pinkPointLight = new THREE.PointLight(0xff69b4, 0.8, 15);
+        pinkPointLight.position.set(0, 4, 0);
+        scene.add(pinkPointLight);
+
+        // ----------------------------------------------------
+        // FLOOR (Indian-Style Mandala Pattern)
+        // ----------------------------------------------------
+        function createMandalaFloorTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 1024;
+            const ctx = canvas.getContext('2d');
+
+            const grad = ctx.createRadialGradient(512, 512, 0, 512, 512, 700);
+            grad.addColorStop(0, '#fce4ec');
+            grad.addColorStop(0.6, '#f8bbd0');
+            grad.addColorStop(1, '#f48fb1');
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, 1024, 1024);
+
+            ctx.strokeStyle = 'rgba(194, 24, 91, 0.25)';
+            ctx.lineWidth = 4;
+
+            for (let y = 0; y < 1024; y += 128) {
+                for (let x = 0; x < 1024; x += 128) {
+                    ctx.strokeRect(x+4, y+4, 120, 120);
+                    ctx.beginPath();
+                    ctx.arc(x+64, y+64, 30, 0, Math.PI*2);
+                    ctx.stroke();
+
+                    for (let i=0; i<8; i++) {
+                        const ang = (Math.PI / 4) * i;
+                        const px = x+64 + Math.cos(ang)*38;
+                        const py = y+64 + Math.sin(ang)*38;
+                        ctx.beginPath();
+                        ctx.arc(px, py, 8, 0, Math.PI*2);
+                        ctx.stroke();
+                    }
+                }
+            }
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.wrapS = THREE.RepeatWrapping;
+            texture.wrapT = THREE.RepeatWrapping;
+            texture.repeat.set(4, 4);
+            return texture;
+        }
+
+        const floorPlane = new THREE.Mesh(
+            new THREE.PlaneGeometry(24, 24),
+            new THREE.MeshStandardMaterial({ map: createMandalaFloorTexture(), roughness: 0.5, metalness: 0.1 })
+        );
+        floorPlane.rotation.x = -Math.PI / 2;
+        floorPlane.receiveShadow = true;
+        scene.add(floorPlane);
+
+        // ----------------------------------------------------
+        // TABLE & TABLECLOTH
+        // ----------------------------------------------------
+        const tableGroup = new THREE.Group();
+
+        function createCheckeredTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+            const sq = 64;
+            for (let y = 0; y < 512; y += sq) {
+                for (let x = 0; x < 512; x += sq) {
+                    const isRed = ((x / sq) + (y / sq)) % 2 === 0;
+                    ctx.fillStyle = isRed ? '#e91e63' : '#ffffff';
+                    ctx.fillRect(x, y, sq, sq);
+                }
+            }
+            const tex = new THREE.CanvasTexture(canvas);
+            tex.wrapS = THREE.RepeatWrapping;
+            tex.wrapT = THREE.RepeatWrapping;
+            tex.repeat.set(3, 2);
+            return tex;
+        }
+
+        const tableTopHeight = 1.5;
+        const tableTop = new THREE.Mesh(
+            new THREE.BoxGeometry(3.2, 0.1, 2.2),
+            new THREE.MeshStandardMaterial({ map: createCheckeredTexture(), roughness: 0.6 })
+        );
+        tableTop.position.y = tableTopHeight;
+        tableTop.castShadow = true;
+        tableTop.receiveShadow = true;
+        tableGroup.add(tableTop);
+
+        const legMat = new THREE.MeshStandardMaterial({ color: 0x5c2c16, roughness: 0.7 });
+        const legPositions = [[-1.4, 0.75, -0.9], [1.4, 0.75, -0.9], [-1.4, 0.75, 0.9], [1.4, 0.75, 0.9]];
+        legPositions.forEach(pos => {
+            const leg = new THREE.Mesh(new THREE.BoxGeometry(0.12, 1.5, 0.12), legMat);
+            leg.position.set(...pos);
+            leg.castShadow = true;
+            tableGroup.add(leg);
+        });
+        scene.add(tableGroup);
+
+        // ----------------------------------------------------
+        // HIGH-DETAIL PROCEDURAL 3D DINNER REPLACEMENTS
+        // ----------------------------------------------------
+        const dinnerGroup = new THREE.Group();
+
+        // 1. Procedural Sushi Bowl
+        function createProceduralSushiBowl() {
+            const bowlGroup = new THREE.Group();
+            
+            // Bowl Ceramic Body
+            const bowlGeo = new THREE.CylinderGeometry(0.32, 0.18, 0.22, 32);
+            const bowlMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.15, metalness: 0.1 });
+            const bowl = new THREE.Mesh(bowlGeo, bowlMat);
+            bowl.castShadow = true;
+            bowl.receiveShadow = true;
+            bowlGroup.add(bowl);
+
+            // Rice Fill
+            const riceGeo = new THREE.CylinderGeometry(0.30, 0.25, 0.04, 32);
+            const riceMat = new THREE.MeshStandardMaterial({ color: 0xf5f5f0, roughness: 0.9 });
+            const rice = new THREE.Mesh(riceGeo, riceMat);
+            rice.position.y = 0.08;
+            bowlGroup.add(rice);
+
+            // Salmon Topping Blocks
+            const salmonMat = new THREE.MeshStandardMaterial({ color: 0xff6f59, roughness: 0.4 });
+            for(let i=0; i<3; i++) {
+                const salmon = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.04, 0.14), salmonMat);
+                salmon.position.set(-0.1 + i*0.09, 0.11, 0.02);
+                salmon.rotation.y = 0.2 * i;
+                bowlGroup.add(salmon);
+            }
+
+            // Avocado Wedges
+            const avoMat = new THREE.MeshStandardMaterial({ color: 0x558b2f, roughness: 0.5 });
+            for(let i=0; i<2; i++) {
+                const avo = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.03, 0.12), avoMat);
+                avo.position.set(0.12, 0.11, -0.08 + i*0.08);
+                bowlGroup.add(avo);
+            }
+
+            // Wooden Chopsticks
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0xc8ad7f, roughness: 0.6 });
+            for(let i=0; i<2; i++) {
+                const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.003, 0.65, 8), stickMat);
+                stick.rotation.z = Math.PI / 2;
+                stick.rotation.y = -0.3;
+                stick.position.set(0, 0.13, -0.1 + i*0.03);
+                bowlGroup.add(stick);
+            }
+
+            bowlGroup.position.y = tableTopHeight + 0.11;
+            return bowlGroup;
+        }
+
+        // 2. Procedural Sushi Platter
+        function createProceduralSushiPlatter() {
+            const platterGroup = new THREE.Group();
+
+            // Slate Board
+            const board = new THREE.Mesh(
+                new THREE.BoxGeometry(0.85, 0.03, 0.45),
+                new THREE.MeshStandardMaterial({ color: 0x212121, roughness: 0.8, metalness: 0.2 })
+            );
+            board.castShadow = true;
+            platterGroup.add(board);
+
+            // Nigiri Rolls
+            const riceBaseMat = new THREE.MeshStandardMaterial({ color: 0xfafafa, roughness: 0.8 });
+            const fishMat1 = new THREE.MeshStandardMaterial({ color: 0xff5252, roughness: 0.3 });
+            const fishMat2 = new THREE.MeshStandardMaterial({ color: 0xff9800, roughness: 0.3 });
+
+            for(let i=0; i<4; i++) {
+                const posX = -0.28 + i * 0.18;
+                // Rice Mound
+                const riceMound = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.04, 0.08), riceBaseMat);
+                riceMound.position.set(posX, 0.035, -0.08);
+                platterGroup.add(riceMound);
+
+                // Fish Topping
+                const fishTopping = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.02, 0.09), i%2===0 ? fishMat1 : fishMat2);
+                fishTopping.position.set(posX, 0.06, -0.08);
+                platterGroup.add(fishTopping);
+            }
+
+            // Maki Rolls
+            const noriMat = new THREE.MeshStandardMaterial({ color: 0x1b3b2b, roughness: 0.6 });
+            for(let i=0; i<4; i++) {
+                const posX = -0.28 + i * 0.18;
+                const maki = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.045, 0.05, 16), noriMat);
+                maki.position.set(posX, 0.04, 0.08);
+                platterGroup.add(maki);
+            }
+
+            platterGroup.position.y = tableTopHeight + 0.02;
+            return platterGroup;
+        }
+
+        // 3. Procedural Wine Glass with Liquid
+        function createProceduralWineGlass() {
+            const glassGroup = new THREE.Group();
+
+            // Glass Cup Physical Material
+            const glassMat = new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.35,
+                roughness: 0.05,
+                metalness: 0.0,
+                transmission: 0.92,
+                ior: 1.5
+            });
+
+            // Bowl
+            const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.04, 0.20, 32), glassMat);
+            bowl.position.y = 0.22;
+            bowl.castShadow = true;
+            glassGroup.add(bowl);
+
+            // Stem
+            const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.16, 12), glassMat);
+            stem.position.y = 0.08;
+            glassGroup.add(stem);
+
+            // Base
+            const base = new THREE.Mesh(new THREE.CylinderGeometry(0.065, 0.065, 0.01, 24), glassMat);
+            base.position.y = 0.005;
+            glassGroup.add(base);
+
+            // Red Wine Liquid
+            const wineMat = new THREE.MeshStandardMaterial({ color: 0x7209b7, roughness: 0.2, transparent: true, opacity: 0.85 });
+            const wine = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.042, 0.10, 24), wineMat);
+            wine.position.y = 0.18;
+            glassGroup.add(wine);
+
+            glassGroup.position.y = tableTopHeight + 0.01;
+            return glassGroup;
+        }
+
+        // 4. Procedural Wine Bottle with Label
+        function createProceduralWineBottle() {
+            const bottleGroup = new THREE.Group();
+
+            const bottleMat = new THREE.MeshStandardMaterial({ color: 0x1b4332, roughness: 0.2, metalness: 0.2 });
+
+            // Bottle Body
+            const body = new THREE.Mesh(new THREE.CylinderGeometry(0.11, 0.11, 0.45, 32), bottleMat);
+            body.position.y = 0.225;
+            body.castShadow = true;
+            bottleGroup.add(body);
+
+            // Neck
+            const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.05, 0.20, 24), bottleMat);
+            neck.position.y = 0.525;
+            bottleGroup.add(neck);
+
+            // Gold Foil Cap
+            const foilMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, metalness: 0.8, roughness: 0.3 });
+            const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.06, 24), foilMat);
+            cap.position.y = 0.61;
+            bottleGroup.add(cap);
+
+            // Wine Label Texture
+            const labelCanvas = document.createElement('canvas');
+            labelCanvas.width = 256;
+            labelCanvas.height = 256;
+            const ctx = labelCanvas.getContext('2d');
+            ctx.fillStyle = '#fffdfa';
+            ctx.fillRect(0,0,256,256);
+            ctx.strokeStyle = '#d4af37';
+            ctx.lineWidth = 6;
+            ctx.strokeRect(10,10,236,236);
+            ctx.fillStyle = '#d63384';
+            ctx.font = 'Bold 22px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('Château Lovie', 128, 80);
+            ctx.font = '16px serif';
+            ctx.fillStyle = '#333';
+            ctx.fillText("Cuvée d'Amour", 128, 130);
+            ctx.fillText('★ 2026 ★', 128, 180);
+
+            const labelTex = new THREE.CanvasTexture(labelCanvas);
+            const labelMat = new THREE.MeshStandardMaterial({ map: labelTex, roughness: 0.5 });
+            const label = new THREE.Mesh(new THREE.CylinderGeometry(0.112, 0.112, 0.24, 32, 1, true, -Math.PI/3, (2*Math.PI)/3), labelMat);
+            label.position.y = 0.22;
+            bottleGroup.add(label);
+
+            bottleGroup.position.y = tableTopHeight + 0.01;
+            return bottleGroup;
+        }
+
+        // 5. Procedural Flower Vase with Rose Bouquet
+        function createProceduralFlowerVase() {
+            const vaseGroup = new THREE.Group();
+
+            const vaseMat = new THREE.MeshPhysicalMaterial({ color: 0xe0f7fa, transparent: true, opacity: 0.45, transmission: 0.8, roughness: 0.1 });
+            const vase = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.09, 0.32, 32), vaseMat);
+            vase.position.y = 0.16;
+            vase.castShadow = true;
+            vaseGroup.add(vase);
+
+            // Roses
+            const roseColors = [0xe91e63, 0xff2a6d, 0xd81b60, 0xff6090];
+            const stemMat = new THREE.MeshStandardMaterial({ color: 0x2e7d32, roughness: 0.8 });
+
+            for(let i=0; i<7; i++) {
+                const ang = (i/7) * Math.PI*2;
+                const r = 0.04 + Math.random()*0.04;
+                const h = 0.35 + Math.random()*0.12;
+
+                const roseHead = new THREE.Group();
+                const headMat = new THREE.MeshStandardMaterial({ color: roseColors[i%roseColors.length], roughness: 0.5 });
+                const centerSphere = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), headMat);
+                roseHead.add(centerSphere);
+
+                for(let p=0; p<6; p++) {
+                    const petal = new THREE.Mesh(new THREE.SphereGeometry(0.025, 8, 8), headMat);
+                    const pAng = (p/6)*Math.PI*2;
+                    petal.position.set(Math.cos(pAng)*0.035, -0.01, Math.sin(pAng)*0.035);
+                    petal.scale.set(0.8, 1.3, 0.7);
+                    roseHead.add(petal);
+                }
+
+                roseHead.position.set(Math.cos(ang)*r, h, Math.sin(ang)*r);
+                vaseGroup.add(roseHead);
+
+                // Stem
+                const stem = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, h, 8), stemMat);
+                stem.position.set(Math.cos(ang)*(r*0.5), h*0.5, Math.sin(ang)*(r*0.5));
+                vaseGroup.add(stem);
+            }
+
+            vaseGroup.position.y = tableTopHeight + 0.01;
+            return vaseGroup;
+        }
+
+        // 6. Candle with Flickering Light
+        function createCandle(posX, posZ) {
+            const candleGroup = new THREE.Group();
+
+            const wax = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.045, 0.05, 0.22, 20),
+                new THREE.MeshStandardMaterial({ color: 0xfff8dc, roughness: 0.7 })
+            );
+            wax.position.y = tableTopHeight + 0.11;
+            wax.castShadow = true;
+            candleGroup.add(wax);
+
+            const wick = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.003, 0.003, 0.03, 8),
+                new THREE.MeshStandardMaterial({ color: 0x111111 })
+            );
+            wick.position.y = tableTopHeight + 0.235;
+            candleGroup.add(wick);
+
+            const flameMat = new THREE.MeshStandardMaterial({
+                color: 0xffa500, emissive: 0xff5500, emissiveIntensity: 2.8, transparent: true, opacity: 0.95
+            });
+            const flame = new THREE.Mesh(new THREE.SphereGeometry(0.028, 12, 12), flameMat);
+            flame.scale.set(0.8, 1.6, 0.8);
+            flame.position.y = tableTopHeight + 0.26;
+            candleGroup.add(flame);
+
+            const light = new THREE.PointLight(0xffaa33, 1.4, 4);
+            light.position.y = tableTopHeight + 0.26;
+            light.castShadow = true;
+            candleGroup.add(light);
+
+            candleGroup.userData = { flame, light, baseY: tableTopHeight + 0.26, phase: Math.random()*10 };
+            candleGroup.position.set(posX, 0, posZ);
+            return candleGroup;
+        }
+
+        // GLTF Model Loader with robust procedural replacement fallback
+        const gltfLoader = new GLTFLoader();
+        function loadModelWithFallback(path, scale, pos, rot, fallbackCreator) {
+            let loaded = false;
+
+            // Trigger fallback if GLTF takes > 3.5s or fails
+            const timer = setTimeout(() => {
+                if (!loaded) {
+                    loaded = true;
+                    console.log(`Using procedural 3D replacement for ${path}`);
+                    const procObj = fallbackCreator();
+                    procObj.position.set(pos.x, pos.y, pos.z);
+                    if (rot) procObj.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
+                    dinnerGroup.add(procObj);
+                }
+            }, 3500);
+
+            gltfLoader.load(
+                path,
+                (gltf) => {
+                    if (loaded) return;
+                    loaded = true;
+                    clearTimeout(timer);
+                    const model = gltf.scene;
+                    model.scale.set(scale, scale, scale);
+                    model.position.set(pos.x, pos.y, pos.z);
+                    if (rot) model.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
+                    model.traverse(c => { if(c.isMesh) { c.castShadow = true; c.receiveShadow = true; } });
+                    dinnerGroup.add(model);
+                },
+                undefined,
+                (err) => {
+                    if (loaded) return;
+                    loaded = true;
+                    clearTimeout(timer);
+                    console.warn(`GLTF error on ${path}, loading procedural replacement.`, err);
+                    const procObj = fallbackCreator();
+                    procObj.position.set(pos.x, pos.y, pos.z);
+                    if (rot) procObj.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
+                    dinnerGroup.add(procObj);
+                }
+            );
+        }
+
+        // Assemble Dinner Setup
+        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: -1.15, y: 1.5, z: 0 }, null, createProceduralSushiBowl);
+        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: 1.15, y: 1.5, z: 0 }, null, createProceduralSushiBowl);
+        loadModelWithFallback('sushi/sushi/scene.gltf', 0.02, { x: 0, y: 1.52, z: 0.2 }, null, createProceduralSushiPlatter);
+        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: -0.9, y: 1.5, z: 0.5 }, null, createProceduralWineGlass);
+        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: 0.9, y: 1.5, z: 0.5 }, null, createProceduralWineGlass);
+        loadModelWithFallback('wine bottle/wine_bottle/scene.gltf', 0.15, { x: -0.5, y: 1.5, z: -0.5 }, null, createProceduralWineBottle);
+        loadModelWithFallback('flowers/flowers_in_vase/scene.gltf', 2, { x: 0.1, y: 1.5, z: -0.4 }, null, createProceduralFlowerVase);
+
+        const candle1 = createCandle(-1.0, -0.6);
+        const candle2 = createCandle(1.0, -0.6);
+        dinnerGroup.add(candle1);
+        dinnerGroup.add(candle2);
+        const candles = [candle1, candle2];
+
+        scene.add(dinnerGroup);
+
+        // ----------------------------------------------------
+        // ROMANTIC COUPLE CHARACTERS & CHAIRS SETUP
+        // ----------------------------------------------------
+        function createDiningChair(posX, posZ, rotY) {
+            const chairGroup = new THREE.Group();
+            const woodMat = new THREE.MeshStandardMaterial({ color: 0x4a2511, roughness: 0.6 });
+            const cushionMat = new THREE.MeshStandardMaterial({ color: 0xe91e63, roughness: 0.5 });
+
+            // Seat Cushion
+            const seat = new THREE.Mesh(new THREE.BoxGeometry(0.65, 0.08, 0.65), cushionMat);
+            seat.position.y = 0.78;
+            seat.castShadow = true;
+            seat.receiveShadow = true;
+            chairGroup.add(seat);
+
+            // Seat Wooden Frame
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.05, 0.68), woodMat);
+            frame.position.y = 0.72;
+            frame.castShadow = true;
+            chairGroup.add(frame);
+
+            // Backrest
+            const back = new THREE.Mesh(new THREE.BoxGeometry(0.68, 0.75, 0.06), woodMat);
+            back.position.set(0, 1.15, -0.31);
+            back.castShadow = true;
+            chairGroup.add(back);
+
+            // Back Cushion
+            const backCushion = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.6, 0.04), cushionMat);
+            backCushion.position.set(0, 1.15, -0.27);
+            chairGroup.add(backCushion);
+
+            // Legs
+            const legGeo = new THREE.CylinderGeometry(0.035, 0.025, 0.72, 12);
+            [
+                [-0.28, 0.36, -0.28],
+                [0.28, 0.36, -0.28],
+                [-0.28, 0.36, 0.28],
+                [0.28, 0.36, 0.28]
+            ].forEach(pos => {
+                const leg = new THREE.Mesh(legGeo, woodMat);
+                leg.position.set(...pos);
+                leg.castShadow = true;
+                chairGroup.add(leg);
+            });
+
+            chairGroup.position.set(posX, 0, posZ);
+            chairGroup.rotation.y = rotY;
+            return chairGroup;
+        }
+
+        function createBoyCharacter() {
+            const boyGroup = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdfc4, roughness: 0.6 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x2b1b17, roughness: 0.8 });
+            const jacketMat = new THREE.MeshStandardMaterial({ color: 0x1e3a8a, roughness: 0.5 });
+            const pantsMat = new THREE.MeshStandardMaterial({ color: 0x374151, roughness: 0.7 });
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
+
+            // Torso (Leaning slightly forward towards table)
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.18, 0.55, 16), jacketMat);
+            torso.position.set(0, 1.08, 0.05);
+            torso.rotation.x = 0.15; // Lean forward
+            torso.castShadow = true;
+            boyGroup.add(torso);
+
+            // Head (Tilted down facing the food on the table)
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.18, 24, 24), skinMat);
+            head.position.set(0, 1.48, 0.12);
+            head.rotation.x = 0.28; // Face down towards table
+            head.castShadow = true;
+            boyGroup.add(head);
+
+            // Hair Cap
+            const hair = new THREE.Mesh(new THREE.SphereGeometry(0.19, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
+            hair.position.set(0, 1.50, 0.11);
+            hair.rotation.x = 0.28;
+            boyGroup.add(hair);
+
+            // Hair Bangs
+            const bang = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.12, 8), hairMat);
+            bang.rotation.z = -0.5;
+            bang.position.set(0.06, 1.58, 0.24);
+            boyGroup.add(bang);
+
+            // Eyes (looking down at food)
+            const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 12), eyeMat);
+            leftEye.position.set(-0.06, 1.48, 0.27);
+            boyGroup.add(leftEye);
+
+            const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.025, 12, 12), eyeMat);
+            rightEye.position.set(0.06, 1.48, 0.27);
+            boyGroup.add(rightEye);
+
+            // Blush Cheeks
+            const blushMat = new THREE.MeshBasicMaterial({ color: 0xff8a80, transparent: true, opacity: 0.6 });
+            const leftBlush = new THREE.Mesh(new THREE.CircleGeometry(0.03, 12), blushMat);
+            leftBlush.position.set(-0.09, 1.43, 0.26);
+            leftBlush.rotation.y = -0.3;
+            boyGroup.add(leftBlush);
+
+            const rightBlush = new THREE.Mesh(new THREE.CircleGeometry(0.03, 12), blushMat);
+            rightBlush.position.set(0.09, 1.43, 0.26);
+            rightBlush.rotation.y = 0.3;
+            boyGroup.add(rightBlush);
+
+            // Arms (extended forward over table like eating)
+            const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.38, 12), jacketMat);
+            leftArm.position.set(-0.16, 1.15, 0.22);
+            leftArm.rotation.x = Math.PI / 2.2;
+            leftArm.rotation.z = -Math.PI / 10;
+            boyGroup.add(leftArm);
+
+            const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 0.38, 12), jacketMat);
+            rightArm.position.set(0.16, 1.15, 0.22);
+            rightArm.rotation.x = Math.PI / 2.2;
+            rightArm.rotation.z = Math.PI / 10;
+            boyGroup.add(rightArm);
+
+            // Chopsticks in right hand
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0xc8ad7f, roughness: 0.6 });
+            const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.003, 0.4, 8), stickMat);
+            stick.rotation.x = Math.PI / 2.5;
+            stick.position.set(0.18, 1.22, 0.38);
+            boyGroup.add(stick);
+
+            // Legs (sitting on chair)
+            const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.45, 12), pantsMat);
+            leftLeg.position.set(-0.1, 0.72, 0.15);
+            leftLeg.rotation.x = Math.PI / 2.2;
+            boyGroup.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.05, 0.45, 12), pantsMat);
+            rightLeg.position.set(0.1, 0.72, 0.15);
+            rightLeg.rotation.x = Math.PI / 2.2;
+            boyGroup.add(rightLeg);
+
+            return boyGroup;
+        }
+
+        function createGirlCharacter() {
+            const girlGroup = new THREE.Group();
+            const skinMat = new THREE.MeshStandardMaterial({ color: 0xffe0bd, roughness: 0.6 });
+            const hairMat = new THREE.MeshStandardMaterial({ color: 0x8d4925, roughness: 0.7 });
+            const dressMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.5 });
+            const eyeMat = new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.2 });
+
+            // Torso (Leaning slightly forward towards table)
+            const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.22, 0.52, 16), dressMat);
+            torso.position.set(0, 1.06, 0.05);
+            torso.rotation.x = 0.15; // Lean forward
+            torso.castShadow = true;
+            girlGroup.add(torso);
+
+            // Head (Tilted down facing the food on the table)
+            const head = new THREE.Mesh(new THREE.SphereGeometry(0.175, 24, 24), skinMat);
+            head.position.set(0, 1.44, 0.12);
+            head.rotation.x = 0.28; // Face down towards table
+            head.castShadow = true;
+            girlGroup.add(head);
+
+            // Hair Back
+            const backHair = new THREE.Mesh(new THREE.CylinderGeometry(0.2, 0.22, 0.55, 16), hairMat);
+            backHair.position.set(0, 1.31, 0.05);
+            backHair.rotation.x = 0.15;
+            girlGroup.add(backHair);
+
+            // Hair Top
+            const hairTop = new THREE.Mesh(new THREE.SphereGeometry(0.185, 24, 24, 0, Math.PI * 2, 0, Math.PI * 0.55), hairMat);
+            hairTop.position.set(0, 1.46, 0.11);
+            hairTop.rotation.x = 0.28;
+            girlGroup.add(hairTop);
+
+            // Hair Bow Ribbon
+            const bowLeft = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), dressMat);
+            bowLeft.position.set(-0.06, 1.60, 0.18);
+            girlGroup.add(bowLeft);
+            const bowRight = new THREE.Mesh(new THREE.SphereGeometry(0.045, 12, 12), dressMat);
+            bowRight.position.set(0.06, 1.60, 0.18);
+            girlGroup.add(bowRight);
+
+            // Eyes (looking down at food)
+            const leftEye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 12, 12), eyeMat);
+            leftEye.position.set(-0.055, 1.44, 0.26);
+            girlGroup.add(leftEye);
+
+            const rightEye = new THREE.Mesh(new THREE.SphereGeometry(0.024, 12, 12), eyeMat);
+            rightEye.position.set(0.055, 1.44, 0.26);
+            girlGroup.add(rightEye);
+
+            // Blush Cheeks
+            const blushMat = new THREE.MeshBasicMaterial({ color: 0xff4081, transparent: true, opacity: 0.65 });
+            const leftBlush = new THREE.Mesh(new THREE.CircleGeometry(0.03, 12), blushMat);
+            leftBlush.position.set(-0.085, 1.39, 0.25);
+            leftBlush.rotation.y = -0.3;
+            girlGroup.add(leftBlush);
+
+            const rightBlush = new THREE.Mesh(new THREE.CircleGeometry(0.03, 12), blushMat);
+            rightBlush.position.set(0.085, 1.39, 0.25);
+            rightBlush.rotation.y = 0.3;
+            girlGroup.add(rightBlush);
+
+            // Arms (extended forward over table like eating)
+            const leftArm = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.35, 12), dressMat);
+            leftArm.position.set(-0.16, 1.12, 0.22);
+            leftArm.rotation.x = Math.PI / 2.2;
+            leftArm.rotation.z = -Math.PI / 10;
+            girlGroup.add(leftArm);
+
+            const rightArm = new THREE.Mesh(new THREE.CylinderGeometry(0.038, 0.038, 0.35, 12), dressMat);
+            rightArm.position.set(0.16, 1.12, 0.22);
+            rightArm.rotation.x = Math.PI / 2.2;
+            rightArm.rotation.z = Math.PI / 10;
+            girlGroup.add(rightArm);
+
+            // Chopsticks in right hand
+            const stickMat = new THREE.MeshStandardMaterial({ color: 0xc8ad7f, roughness: 0.6 });
+            const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.003, 0.4, 8), stickMat);
+            stick.rotation.x = Math.PI / 2.5;
+            stick.position.set(0.18, 1.19, 0.38);
+            girlGroup.add(stick);
+
+            // Legs
+            const legMat = skinMat;
+            const leftLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.42, 12), legMat);
+            leftLeg.position.set(-0.09, 0.72, 0.14);
+            leftLeg.rotation.x = Math.PI / 2.2;
+            girlGroup.add(leftLeg);
+
+            const rightLeg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.045, 0.42, 12), legMat);
+            rightLeg.position.set(0.09, 0.72, 0.14);
+            rightLeg.rotation.x = Math.PI / 2.2;
+            girlGroup.add(rightLeg);
+
+            return girlGroup;
+        }
+
+        // Position Boy & Girl facing towards the dinner table center & their sushi bowls
+        const boyChair = createDiningChair(-1.0, 0.7, 0.6);
+        const boyChar = createBoyCharacter();
+        boyChar.position.set(-1.0, 0, 0.7);
+        boyChar.rotation.y = 0.6; // Facing inward toward table & food
+        scene.add(boyChair);
+        scene.add(boyChar);
+
+        const girlChair = createDiningChair(1.0, 0.7, -0.6);
+        const girlChar = createGirlCharacter();
+        girlChar.position.set(1.0, 0, 0.7);
+        girlChar.rotation.y = -0.6; // Facing inward toward table & food
+        scene.add(girlChair);
+        scene.add(girlChar);
+
+        // ----------------------------------------------------
+        // MEMORY RING - Floating Cartoon Photo Frames
+        // ----------------------------------------------------
+        // ----------------------------------------------------
+        // MEMORY RING - Floating Cartoon Photo Frames (Black Picture Bars)
+        // ----------------------------------------------------
+        const memoryRing = new THREE.Group();
+        const photoCount = photoMemories.length;
+        const ringRadius = 7.5;
+        const polaroidMeshes = [];
+
+        photoMemories.forEach((mem, index) => {
+            const polaroidGroup = new THREE.Group();
+
+            // Black Picture Bar Frame (1.5 wide x 1.8 high x 0.03 deep)
+            const frameMat = new THREE.MeshStandardMaterial({ color: 0x111115, roughness: 0.4, metalness: 0.2 });
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(1.5, 1.8, 0.03), frameMat);
+            frame.castShadow = true;
+            polaroidGroup.add(frame);
+
+            // Procedural cartoon fallback texture if file:// CORS blocks loading JPEGs directly
+            function createFallbackCanvasTexture(title, idx) {
+                const canvas = document.createElement('canvas');
+                canvas.width = 512;
+                canvas.height = 512;
+                const ctx = canvas.getContext('2d');
+
+                const colors = [
+                    ['#ff9a9e', '#fecfef'],
+                    ['#a1c4fd', '#c2e9fb'],
+                    ['#ffecd2', '#fcb69f'],
+                    ['#ff85a2', '#ffacb7'],
+                    ['#d4fc79', '#96e6a1'],
+                    ['#84fab0', '#8fd3f4']
+                ];
+                const pair = colors[idx % colors.length];
+                const grad = ctx.createLinearGradient(0, 0, 512, 512);
+                grad.addColorStop(0, pair[0]);
+                grad.addColorStop(1, pair[1]);
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, 512, 512);
+
+                // Cute centered cartoon heart
+                ctx.fillStyle = '#e91e63';
+                ctx.beginPath();
+                ctx.moveTo(256, 250);
+                ctx.bezierCurveTo(256, 220, 200, 150, 140, 200);
+                ctx.bezierCurveTo(90, 250, 140, 310, 256, 370);
+                ctx.bezierCurveTo(372, 310, 422, 250, 372, 200);
+                ctx.bezierCurveTo(312, 150, 256, 220, 256, 250);
+                ctx.fill();
+
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 34px sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('♡ ' + title + ' ♡', 256, 440);
+
+                const tex = new THREE.CanvasTexture(canvas);
+                tex.colorSpace = THREE.SRGBColorSpace;
+                return tex;
+            }
+
+            // Photo material
+            const photoMat = new THREE.MeshStandardMaterial({ roughness: 0.4, side: THREE.DoubleSide });
+
+            // Load JPEG texture with fallback
+            const loadedTex = textureLoader.load(
+                mem.file,
+                (tex) => {
+                    tex.colorSpace = THREE.SRGBColorSpace;
+                    photoMat.map = tex;
+                    photoMat.needsUpdate = true;
+                },
+                undefined,
+                () => {
+                    photoMat.map = createFallbackCanvasTexture(mem.title, index);
+                    photoMat.needsUpdate = true;
+                }
+            );
+            // Default map set immediately in case load is synchronous
+            photoMat.map = loadedTex;
+
+            const photoGeo = new THREE.PlaneGeometry(1.3, 1.3);
+
+            // Front Photo Plane (z = 0.02 sits in FRONT of z = 0.015 frame surface)
+            const frontPhoto = new THREE.Mesh(photoGeo, photoMat);
+            frontPhoto.position.z = 0.02;
+            frontPhoto.position.y = 0.15;
+            polaroidGroup.add(frontPhoto);
+
+            // Back Photo Plane
+            const backPhoto = new THREE.Mesh(photoGeo, photoMat);
+            backPhoto.position.z = -0.02;
+            backPhoto.position.y = 0.15;
+            backPhoto.rotation.y = Math.PI;
+            polaroidGroup.add(backPhoto);
+
+            const angle = (index / photoCount) * Math.PI * 2;
+            polaroidGroup.position.set(Math.cos(angle) * ringRadius, 2.4, Math.sin(angle) * ringRadius);
+
+            polaroidGroup.userData = { memoryIndex: index, memData: mem };
+            memoryRing.add(polaroidGroup);
+            polaroidMeshes.push(polaroidGroup);
+        });
+
+        scene.add(memoryRing);
+
+        // ----------------------------------------------------
+        // BACKGROUND HEART CLOUD OF "I LOVE YOU" TEXT SPRITES
+        // ----------------------------------------------------
+        function createTextSprite() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 64;
+            const ctx = canvas.getContext('2d');
+            ctx.font = 'Bold 26px Arial';
+            ctx.fillStyle = '#ff0000';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = '#cc0000';
+            ctx.shadowBlur = 12;
+            ctx.fillText('i love you', 128, 32);
+            return new THREE.CanvasTexture(canvas);
+        }
+
+        const textTexture = createTextSprite();
+        const spriteMaterial = new THREE.SpriteMaterial({
+            map: textTexture,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const heartCloud = new THREE.Group();
+        const spriteCount = 280;
+
+        function heartEquation(t, s, scale = 0.15) {
+            const x = scale * 16 * Math.pow(Math.sin(t), 3);
+            const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            const z = scale * 8 * Math.sin(t) * Math.sin(s);
+            return { x, y, z };
+        }
+
+        for (let i = 0; i < spriteCount; i++) {
+            const sprite = new THREE.Sprite(spriteMaterial.clone());
+            const u = Math.random() * Math.PI * 2;
+            const v = Math.random() * Math.PI;
+            const pos = heartEquation(u, v, 0.16);
+
+            pos.x += (Math.random() - 0.5) * 0.4;
+            pos.y += (Math.random() - 0.5) * 0.4;
+            pos.z += (Math.random() - 0.5) * 0.4;
+
+            sprite.position.set(pos.x, pos.y + 3.2, pos.z);
+            sprite.scale.set(0.55, 0.28, 1);
+            sprite.userData = { u, v };
+            heartCloud.add(sprite);
+        }
+
+        heartCloud.position.set(0, -1, -3);
+        scene.add(heartCloud);
+
+        // ----------------------------------------------------
+        // FLOATING MAGICAL SPARKLE PARTICLES
+        // ----------------------------------------------------
+        const particleCount = 140;
+        const particleGeo = new THREE.BufferGeometry();
+        const particlePos = new Float32Array(particleCount * 3);
+        const particleVels = [];
+
+        for (let i = 0; i < particleCount; i++) {
+            particlePos[i*3] = (Math.random() - 0.5) * 12;
+            particlePos[i*3 + 1] = Math.random() * 6;
+            particlePos[i*3 + 2] = (Math.random() - 0.5) * 12;
+            particleVels.push({ x: (Math.random()-0.5)*0.012, y: 0.004 + Math.random()*0.008, z: (Math.random()-0.5)*0.012 });
+        }
+        particleGeo.setAttribute('position', new THREE.BufferAttribute(particlePos, 3));
+        const particles = new THREE.Points(
+            particleGeo,
+            new THREE.PointsMaterial({ color: 0xffb6c1, size: 0.09, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending })
+        );
+        scene.add(particles);
+
+        // ----------------------------------------------------
+        // INTERACTIVE RAYCASTING FOR PHOTO LIGHTBOX
+        // ----------------------------------------------------
+        const raycaster = new THREE.Raycaster();
+        const mouse = new THREE.Vector2();
+        const lightboxModal = document.getElementById('lightbox-modal');
+        const modalImg = document.getElementById('modal-img');
+        const modalTitle = document.getElementById('modal-title');
+        const modalDesc = document.getElementById('modal-desc');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        function openLightbox(mem) {
+            modalImg.src = mem.file;
+            modalTitle.textContent = mem.title;
+            modalDesc.textContent = mem.desc;
+            lightboxModal.classList.add('active');
+        }
+
+        function closeLightbox() {
+            lightboxModal.classList.remove('active');
+        }
+
+        modalCloseBtn.addEventListener('click', closeLightbox);
+        lightboxModal.addEventListener('click', (e) => {
+            if (e.target === lightboxModal) closeLightbox();
+        });
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeLightbox();
+        });
+
+        window.addEventListener('pointerdown', (e) => {
+            // Ignore clicks on UI buttons
+            if (e.target.closest('.ui-layer') || e.target.closest('#lightbox-modal')) return;
+
+            mouse.x = (e.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(e.clientY / window.innerHeight) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects(memoryRing.children, true);
+
+            if (intersects.length > 0) {
+                let obj = intersects[0].object;
+                while (obj.parent && obj.parent !== memoryRing) {
+                    obj = obj.parent;
+                }
+                if (obj.userData && obj.userData.memData) {
+                    openLightbox(obj.userData.memData);
+                }
+            }
+        });
+
+        // ----------------------------------------------------
+        // PROCEDURAL ROMANTIC AUDIO SYNTH (Web Audio API)
+        // ----------------------------------------------------
+        let audioCtx = null;
+        let isMusicPlaying = false;
+        let audioInterval = null;
+
+        const musicBtn = document.getElementById('music-btn');
+        const musicBtnText = document.getElementById('music-btn-text');
+
+        function playChordNote(freq, delay, duration) {
+            if (!audioCtx) return;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.value = freq;
+
+            const now = audioCtx.currentTime + delay;
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start(now);
+            osc.stop(now + duration);
+        }
+
+        function toggleMusic() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+
+            if (isMusicPlaying) {
+                isMusicPlaying = false;
+                clearInterval(audioInterval);
+                musicBtn.classList.remove('active');
+                musicBtnText.textContent = 'Music Off';
+            } else {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                isMusicPlaying = true;
+                musicBtn.classList.add('active');
+                musicBtnText.textContent = 'Music On 🎵';
+
+                const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25]; // C Maj 7 arpeggio
+                let step = 0;
+
+                audioInterval = setInterval(() => {
+                    if (!isMusicPlaying) return;
+                    const freq = notes[step % notes.length];
+                    playChordNote(freq, 0, 1.8);
+                    step++;
+                }, 600);
+            }
+        }
+
+        musicBtn.addEventListener('click', toggleMusic);
+
+        // ----------------------------------------------------
+        // ANIMATION LOOP
+        // ----------------------------------------------------
+        let clock = new THREE.Clock();
+        let heartCloudRotation = 0;
+
+        function animate() {
+            requestAnimationFrame(animate);
+            const delta = clock.getDelta();
+            const time = clock.getElapsedTime();
+
+            // Auto-rotate camera
+            if (!isUserInteracting && !lightboxModal.classList.contains('active')) {
+                cameraAngle += 0.08 * delta;
+                camera.position.x = Math.sin(cameraAngle) * 7.5;
+                camera.position.z = Math.cos(cameraAngle) * 7.5;
+                camera.lookAt(0, 1.4, 0);
+            }
+
+            // Animate Candles Flickering
+            candles.forEach(c => {
+                c.userData.phase += delta * 12;
+                const flick = Math.sin(c.userData.phase) * 0.006;
+                c.userData.flame.position.y = c.userData.baseY + flick;
+                c.userData.light.intensity = 1.2 + Math.sin(c.userData.phase * 1.7) * 0.3;
+            });
+
+            // Rotate Memory Ring slowly
+            memoryRing.rotation.y -= 0.06 * delta;
+            memoryRing.children.forEach(polaroid => {
+                polaroid.lookAt(camera.position.x, polaroid.position.y, camera.position.z);
+            });
+
+            // Animate Heart Cloud
+            heartCloudRotation += 0.4 * delta;
+            heartCloud.children.forEach(sprite => {
+                if (sprite.userData.u !== undefined) {
+                    const u = sprite.userData.u + heartCloudRotation * 0.1;
+                    const v = sprite.userData.v;
+                    const pos = heartEquation(u, v, 0.16);
+                    sprite.position.set(pos.x, pos.y + 3.2, pos.z);
+                }
+            });
+            heartCloud.position.y = -1 + Math.sin(time * 0.8) * 0.15;
+
+            // Animate Sparkle Particles
+            const posAttr = particleGeo.attributes.position;
+            const posArray = posAttr.array;
+            for (let i = 0; i < particleCount; i++) {
+                posArray[i*3] += particleVels[i].x;
+                posArray[i*3 + 1] += particleVels[i].y;
+                posArray[i*3 + 2] += particleVels[i].z;
+
+                if (posArray[i*3 + 1] > 6.5) posArray[i*3 + 1] = 0;
+            }
+            posAttr.needsUpdate = true;
+
+            controls.update();
+            renderer.render(scene, camera);
+        }
+
+        // Handle Resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Launch intro and animation loop
+        setTimeout(() => {
+            typeWriter();
+            animate();
+        }, 300);
+    </script>
+</body>
+
+</html>
