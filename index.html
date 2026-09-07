@@ -34,6 +34,264 @@
             color: #fff;
         }
 
+        /* =========================================================
+           🇸🇬 SINGAPORE MIDNIGHT COUNTDOWN
+           ========================================================= */
+
+        #countdown-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 5000;
+            background:
+                radial-gradient(circle at 50% 45%, rgba(255, 105, 180, 0.12), transparent 35%),
+                linear-gradient(180deg, #08030d 0%, #12071b 55%, #08030d 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 1.5s ease;
+        }
+
+        #countdown-overlay.hide {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .countdown-content {
+            position: relative;
+            z-index: 3;
+            text-align: center;
+            width: 90%;
+            max-width: 700px;
+            animation: countdownAppear 1.4s ease-out;
+        }
+
+        @keyframes countdownAppear {
+            from {
+                opacity: 0;
+                transform: translateY(25px) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .countdown-eyebrow {
+            font-family: 'Fira Code', monospace;
+            font-size: 12px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(255, 182, 193, 0.65);
+            margin-bottom: 20px;
+        }
+
+        .countdown-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(38px, 7vw, 72px);
+            font-weight: 600;
+            color: #fff;
+            line-height: 1.05;
+            margin-bottom: 12px;
+            text-shadow:
+                0 0 20px rgba(255, 105, 180, 0.3),
+                0 0 60px rgba(255, 105, 180, 0.15);
+        }
+
+        .countdown-subtitle {
+            font-family: 'Outfit', sans-serif;
+            font-size: 16px;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.65);
+            margin-bottom: 42px;
+        }
+
+        .countdown-timer {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: clamp(8px, 2vw, 22px);
+        }
+
+        .countdown-unit {
+            min-width: clamp(65px, 12vw, 110px);
+        }
+
+        .countdown-number {
+            font-family: 'Fira Code', monospace;
+            font-size: clamp(34px, 7vw, 64px);
+            font-weight: 500;
+            color: #fff;
+            text-shadow: 0 0 25px rgba(255, 105, 180, 0.45);
+            line-height: 1;
+        }
+
+        .countdown-label {
+            margin-top: 10px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: rgba(255, 182, 193, 0.55);
+        }
+
+        .countdown-separator {
+            font-family: 'Fira Code', monospace;
+            font-size: clamp(25px, 5vw, 45px);
+            color: rgba(255, 105, 180, 0.55);
+            margin-top: -18px;
+            animation: separatorPulse 1s infinite;
+        }
+
+        @keyframes separatorPulse {
+            0%, 100% { opacity: 0.35; }
+            50% { opacity: 1; }
+        }
+
+        .countdown-location {
+            margin-top: 48px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.45);
+            letter-spacing: 1px;
+        }
+
+        .countdown-heart {
+            display: inline-block;
+            margin-left: 5px;
+            animation: heartBeat 1.5s ease-in-out infinite;
+        }
+
+        @keyframes heartBeat {
+            0%, 100% { transform: scale(1); }
+            15% { transform: scale(1.18); }
+            30% { transform: scale(1); }
+        }
+
+        .midnight-message {
+            position: absolute;
+            z-index: 5;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            opacity: 0;
+            pointer-events: none;
+            transform: scale(0.7);
+        }
+
+        .midnight-message.show {
+            animation: midnightReveal 3.2s ease forwards;
+        }
+
+        .midnight-message h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(40px, 9vw, 90px);
+            color: #fff;
+            text-align: center;
+            text-shadow:
+                0 0 15px #ff69b4,
+                0 0 40px #ff69b4,
+                0 0 80px rgba(255, 105, 180, 0.7);
+        }
+
+        .midnight-message p {
+            margin-top: 14px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 17px;
+            color: rgba(255,255,255,0.75);
+            letter-spacing: 2px;
+        }
+
+        @keyframes midnightReveal {
+            0% {
+                opacity: 0;
+                transform: scale(0.7);
+            }
+            18% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+            28% {
+                transform: scale(1);
+            }
+            75% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.08);
+            }
+        }
+
+        .countdown-firework {
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            opacity: 0;
+            z-index: 2;
+        }
+
+        .countdown-firework::before {
+            content: "";
+            position: absolute;
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            box-shadow:
+                0 -90px 0 1px #ff69b4,
+                45px -45px 0 1px #ffd700,
+                90px 0 0 1px #00ff88,
+                45px 45px 0 1px #00d4ff,
+                0 90px 0 1px #ff69b4,
+                -45px 45px 0 1px #ffd700,
+                -90px 0 0 1px #00ff88,
+                -45px -45px 0 1px #00d4ff;
+        }
+
+        .countdown-firework::after {
+            content: "";
+            position: absolute;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            box-shadow:
+                0 -45px 0 1px #fff,
+                23px -23px 0 1px #ff69b4,
+                45px 0 0 1px #ffd700,
+                23px 23px 0 1px #fff,
+                0 45px 0 1px #ff69b4,
+                -23px 23px 0 1px #ffd700,
+                -45px 0 0 1px #fff,
+                -23px -23px 0 1px #ff69b4;
+        }
+
+        .countdown-firework.burst {
+            animation: fireworkBurst 1.8s ease-out forwards;
+        }
+
+        @keyframes fireworkBurst {
+            0% {
+                opacity: 0;
+                transform: scale(0.1);
+            }
+            15% {
+                opacity: 1;
+            }
+            70% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1.35);
+            }
+        }
+
         /* Terminal Intro Overlay */
         #terminal-overlay {
             position: fixed;
@@ -439,6 +697,75 @@
 </head>
 
 <body>
+    <!-- =========================================================
+         🇸🇬 SINGAPORE MIDNIGHT COUNTDOWN
+         ========================================================= -->
+
+    <div id="countdown-overlay">
+
+        <div class="countdown-content">
+
+            <div class="countdown-eyebrow">
+                something special is waiting for you ♡
+            </div>
+
+            <h1 class="countdown-title">
+                For My Cutie ♡
+            </h1>
+
+            <div class="countdown-subtitle">
+                Just a little world made especially for you ✨
+            </div>
+
+            <div class="countdown-timer">
+
+                <div class="countdown-unit">
+                    <div class="countdown-number" id="countdown-days">00</div>
+                    <div class="countdown-label">Days</div>
+                </div>
+
+                <div class="countdown-separator">:</div>
+
+                <div class="countdown-unit">
+                    <div class="countdown-number" id="countdown-hours">00</div>
+                    <div class="countdown-label">Hours</div>
+                </div>
+
+                <div class="countdown-separator">:</div>
+
+                <div class="countdown-unit">
+                    <div class="countdown-number" id="countdown-minutes">00</div>
+                    <div class="countdown-label">Minutes</div>
+                </div>
+
+                <div class="countdown-separator">:</div>
+
+                <div class="countdown-unit">
+                    <div class="countdown-number" id="countdown-seconds">00</div>
+                    <div class="countdown-label">Seconds</div>
+                </div>
+
+            </div>
+
+
+        </div>
+
+        <!-- Midnight fireworks -->
+        <div class="countdown-firework" style="left: 18%; top: 30%;"></div>
+        <div class="countdown-firework" style="left: 78%; top: 25%;"></div>
+        <div class="countdown-firework" style="left: 50%; top: 20%;"></div>
+        <div class="countdown-firework" style="left: 28%; top: 65%;"></div>
+        <div class="countdown-firework" style="left: 72%; top: 62%;"></div>
+        <div class="countdown-firework" style="left: 50%; top: 45%;"></div>
+
+        <!-- Midnight message -->
+        <div class="midnight-message" id="midnight-message">
+            <h1>Happy Birthday, Nikhil! ❤️</h1>
+            <p>It's finally your day! ✨</p>
+        </div>
+
+    </div>
+
     <!-- 3D Canvas -->
     <div id="canvas-container"></div>
 
@@ -1574,7 +1901,10 @@
 
         // AUDIO PLAYER - Gigi Perez Sailor Song
         // Clever autoplay with invisible terminal unlock
+        // Music only plays AFTER midnight countdown completes
         // ----------------------------------------------------
+
+        let terminalStarted = false;
 
         const audioPlayer = new Audio('Gigi Perez - Sailor Song (Lyrics).mp3');
         audioPlayer.loop = true;
@@ -1608,32 +1938,34 @@
             musicBtnText.textContent = 'Music Off';
         }
 
-        // Try autoplay immediately
+        // Try autoplay immediately (but only after midnight)
         function startMusic() {
+            if (!terminalStarted) return;
             if (!isMusicPlaying || !audioPlayer.paused) return;
 
             audioPlayer.play()
                 .then(() => {
-                    console.log('🎵 Music started automatically');
+                    console.log('🎵 Music started');
                 })
                 .catch(() => {
                     console.log('🎵 Autoplay blocked - waiting for first interaction');
                 });
         }
 
-        // Attempt immediately on page load
-        startMusic();
+        // Music intentionally waits until the birthday experience begins.
+        // This prevents music from playing during the countdown.
 
         // INVISIBLE TERMINAL TAP UNLOCK
         // If autoplay is blocked, the first tap anywhere on the
         // terminal silently starts the music.
 
         function unlockMusicFromTerminal() {
+            if (!terminalStarted) return;
             if (!isMusicPlaying || !audioPlayer.paused) return;
 
             audioPlayer.play()
                 .then(() => {
-                    console.log('🎵 Music unlocked by first interaction');
+                    console.log('🎵 Music unlocked from interaction');
                 })
                 .catch(error => {
                     console.log('🎵 Music still blocked:', error);
@@ -1998,8 +2330,112 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Launch intro and animation loop immediately
-        typeWriter();
+        // ========================================================
+        // 🇸🇬 SINGAPORE MIDNIGHT COUNTDOWN
+        // ========================================================
+
+        const countdownOverlay = document.getElementById('countdown-overlay');
+        const midnightMessage = document.getElementById('midnight-message');
+
+        const countdownDays = document.getElementById('countdown-days');
+        const countdownHours = document.getElementById('countdown-hours');
+        const countdownMinutes = document.getElementById('countdown-minutes');
+        const countdownSeconds = document.getElementById('countdown-seconds');
+
+        // TEST MODE: 5 seconds for testing flow. Production: '2026-09-09T16:00:00Z'
+        const singaporeBirthday = new Date(Date.now() + 5000);
+
+        let countdownFinished = false;
+
+        function updateSingaporeCountdown() {
+
+            if (countdownFinished) return;
+
+            const now = Date.now();
+            const difference = singaporeBirthday.getTime() - now;
+
+            if (difference <= 0) {
+                startBirthdayAtMidnight();
+                return;
+            }
+
+            const totalSeconds = Math.floor(difference / 1000);
+
+            const days = Math.floor(totalSeconds / 86400);
+            const hours = Math.floor((totalSeconds % 86400) / 3600);
+            const minutes = Math.floor((totalSeconds % 3600) / 60);
+            const seconds = totalSeconds % 60;
+
+            countdownDays.textContent = String(days).padStart(2, '0');
+            countdownHours.textContent = String(hours).padStart(2, '0');
+            countdownMinutes.textContent = String(minutes).padStart(2, '0');
+            countdownSeconds.textContent = String(seconds).padStart(2, '0');
+        }
+
+        function startBirthdayAtMidnight() {
+
+            if (countdownFinished) return;
+
+            countdownFinished = true;
+
+            if (window.singaporeCountdownInterval) {
+                clearInterval(window.singaporeCountdownInterval);
+            }
+
+            console.log('🇸🇬 MIDNIGHT IN SINGAPORE!');
+            console.log('🎆 HAPPY BIRTHDAY NIKHIL!');
+
+            const countdownContent =
+                document.querySelector('.countdown-content');
+
+            if (countdownContent) {
+                countdownContent.style.transition = 'opacity 0.5s ease';
+                countdownContent.style.opacity = '0';
+            }
+
+            const countdownFireworks =
+                document.querySelectorAll('.countdown-firework');
+
+            countdownFireworks.forEach((firework, index) => {
+
+                setTimeout(() => {
+                    firework.classList.add('burst');
+                }, index * 180);
+
+            });
+
+            midnightMessage.classList.add('show');
+
+            setTimeout(() => {
+
+                countdownOverlay.classList.add('hide');
+
+                setTimeout(() => {
+
+                    countdownOverlay.style.display = 'none';
+
+                    console.log('💻 Launching happyBirthdayNikhil_init.sh');
+
+                    // The countdown is over. From this point onward, music is allowed.
+                    terminalStarted = true;
+
+                    // 🎵 Start music with the init.sh experience
+                    startMusic();
+
+                    // 💻 Start your existing terminal intro
+                    typeWriter();
+
+                }, 1500);
+
+            }, 3200);
+        }
+
+        updateSingaporeCountdown();
+
+        window.singaporeCountdownInterval =
+            setInterval(updateSingaporeCountdown, 250);
+
+        // Start the 3D scene underneath the countdown
         animate();
     </script>
 </body>
