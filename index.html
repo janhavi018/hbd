@@ -2410,20 +2410,20 @@
 
                 countdownOverlay.classList.add('hide');
 
+                console.log('💻 Launching happyBirthdayNikhil_init.sh');
+
+                // The countdown is over. Music and terminal start NOW.
+                terminalStarted = true;
+
+                // 🎵 Start music immediately
+                startMusic();
+
+                // 💻 Start your existing terminal intro
+                typeWriter();
+
                 setTimeout(() => {
 
                     countdownOverlay.style.display = 'none';
-
-                    console.log('💻 Launching happyBirthdayNikhil_init.sh');
-
-                    // The countdown is over. From this point onward, music is allowed.
-                    terminalStarted = true;
-
-                    // 🎵 Start music with the init.sh experience
-                    startMusic();
-
-                    // 💻 Start your existing terminal intro
-                    typeWriter();
 
                 }, 1500);
 
