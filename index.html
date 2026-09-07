@@ -2340,9 +2340,10 @@
 
             message.position.set(0, 3.0, 0);
 
-            // Canvas is 6:1 ratio (2400:400), adjust sprite to match
+            // Canvas is 6:1 ratio (2400:400)
+            // On mobile, make sprite narrower so it fits in viewport and stays centered
             if (isMobile) {
-                message.scale.set(5.5, 0.92, 1);
+                message.scale.set(3.8, 0.63, 1);
             } else {
                 message.scale.set(6.5, 1.08, 1);
             }
