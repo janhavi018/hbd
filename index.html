@@ -2293,9 +2293,9 @@
                 scene.remove(oldMessage);
             }
 
-            // Make the texture much wider so mobile browsers don't clip the text
+            // MUCH wider canvas to prevent any text clipping on mobile
             const canvas = document.createElement('canvas');
-            canvas.width = 1600;
+            canvas.width = 2400;
             canvas.height = 400;
 
             const ctx = canvas.getContext('2d');
@@ -2304,9 +2304,9 @@
 
             const isMobile = window.innerWidth <= 600;
 
-            // Mobile text is slightly smaller, but the canvas itself is much wider
+            // Smaller font on mobile but plenty of horizontal space
             ctx.font = isMobile
-                ? 'bold 82px Arial, sans-serif'
+                ? 'bold 70px Arial, sans-serif'
                 : 'bold 100px Arial, sans-serif';
 
             ctx.textAlign = 'center';
@@ -2317,7 +2317,7 @@
 
             ctx.fillStyle = '#ffffff';
 
-            // Full birthday message
+            // Full birthday message centered on the wide canvas
             ctx.fillText(
                 'Happy Birthday, Nikhil! ❤️',
                 canvas.width / 2,
@@ -2340,11 +2340,11 @@
 
             message.position.set(0, 3.0, 0);
 
-            // Keep the same 4:1 aspect ratio as the canvas
+            // Canvas is 6:1 ratio (2400:400), adjust sprite to match
             if (isMobile) {
-                message.scale.set(4.5, 1.125, 1);
+                message.scale.set(5.5, 0.92, 1);
             } else {
-                message.scale.set(5.0, 1.25, 1);
+                message.scale.set(6.5, 1.08, 1);
             }
 
             message.userData.startTime = Date.now();
