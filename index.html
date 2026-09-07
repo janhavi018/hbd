@@ -828,7 +828,7 @@
         <div class="countdown-content">
 
             <div class="countdown-eyebrow">
-                something special is waiting for you ♡
+                something special is waiting ♡
             </div>
 
             <h1 class="countdown-title">
@@ -2338,18 +2338,24 @@
 
             message.name = 'birthdayMessage';
 
-            // Canvas is 6:1 ratio (2400:400)
-            // On mobile, shift left and make sprite narrower so it's centered
             if (isMobile) {
-                message.position.set(-0.6, 3.0, 0);
+                message.position.set(
+                    cake.position.x,
+                    cake.position.y + 1.3,
+                    cake.position.z
+                );
                 message.scale.set(3.8, 0.63, 1);
             } else {
-                message.position.set(0, 3.0, 0);
+                message.position.set(
+                    cake.position.x,
+                    cake.position.y + 1.3,
+                    cake.position.z
+                );
                 message.scale.set(6.5, 1.08, 1);
             }
 
             message.userData.startTime = Date.now();
-            message.userData.startY = 3.0;
+            message.userData.startY = message.position.y;
 
             scene.add(message);
         }
