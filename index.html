@@ -2290,21 +2290,20 @@
             const oldMessage = scene.getObjectByName('birthdayMessage');
 
             if (oldMessage) {
-                scene.remove(oldMessage);
+                if (oldMessage.parent) {
+                    oldMessage.parent.remove(oldMessage);
+                }
             }
 
-            // MUCH wider canvas to prevent any text clipping on mobile
             const canvas = document.createElement('canvas');
             canvas.width = 2400;
             canvas.height = 400;
 
             const ctx = canvas.getContext('2d');
-
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const isMobile = window.innerWidth <= 600;
 
-            // Larger font on mobile with plenty of horizontal space in wide canvas
             ctx.font = isMobile
                 ? 'bold 85px Arial, sans-serif'
                 : 'bold 100px Arial, sans-serif';
@@ -2317,7 +2316,6 @@
 
             ctx.fillStyle = '#ffffff';
 
-            // Full birthday message centered on the wide canvas
             ctx.fillText(
                 'Happy Birthday, Nikhil! ❤️',
                 canvas.width / 2,
@@ -2331,33 +2329,27 @@
             const material = new THREE.SpriteMaterial({
                 map: texture,
                 transparent: true,
-                opacity: 0
+                opacity: 0,
+                depthTest: false,
+                depthWrite: false
             });
 
             const message = new THREE.Sprite(material);
 
             message.name = 'birthdayMessage';
 
+            cake.add(message);
+
+            message.position.set(0, 1.45, 0);
+
             if (isMobile) {
-                message.position.set(
-                    cake.position.x,
-                    cake.position.y + 1.3,
-                    cake.position.z
-                );
                 message.scale.set(3.8, 0.63, 1);
             } else {
-                message.position.set(
-                    cake.position.x,
-                    cake.position.y + 1.3,
-                    cake.position.z
-                );
                 message.scale.set(6.5, 1.08, 1);
             }
 
             message.userData.startTime = Date.now();
-            message.userData.startY = message.position.y;
-
-            scene.add(message);
+            message.userData.startY = 1.45;
         }
 
         // Click handler for candle
@@ -2451,7 +2443,9 @@
                 }
                 // Remove
                 else {
-                    scene.remove(birthdayMessage);
+                    if (birthdayMessage.parent) {
+                        birthdayMessage.parent.remove(birthdayMessage);
+                    }
                 }
             }
 
