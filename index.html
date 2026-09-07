@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 
     <!-- iOS Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -295,10 +295,10 @@
         /* Terminal Intro Overlay */
         #terminal-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
+            inset: 0;
             width: 100%;
             height: 100%;
+            min-height: 100dvh;
             background: #0a040d;
             display: flex;
             align-items: center;
@@ -306,6 +306,8 @@
             z-index: 2000;
             opacity: 1;
             transition: opacity 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+            padding: 20px;
         }
 
         #terminal-overlay.fade-out {
@@ -317,11 +319,24 @@
             background: rgba(20, 10, 30, 0.85);
             border: 1px solid rgba(255, 105, 180, 0.3);
             border-radius: 16px;
-            padding: 30px 35px;
+            padding: 24px 28px;
+            width: min(580px, 100%);
             max-width: 580px;
-            width: 90%;
+            max-height: min(720px, calc(100dvh - 40px));
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
             box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 30px rgba(255, 105, 180, 0.2);
             backdrop-filter: blur(12px);
+        }
+
+        .terminal-box::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        .terminal-box::-webkit-scrollbar-thumb {
+            background: rgba(255, 105, 180, 0.45);
+            border-radius: 10px;
         }
 
         .terminal-header {
@@ -331,6 +346,10 @@
             margin-bottom: 20px;
             padding-bottom: 12px;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 2;
+            background: rgba(20, 10, 30, 0.92);
         }
 
         .dot {
@@ -356,6 +375,8 @@
             font-size: 17px;
             line-height: 1.7;
             white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            word-break: break-word;
             text-shadow: 0 0 12px rgba(0, 255, 136, 0.4);
         }
 
@@ -684,21 +705,115 @@
         }
 
         @media (max-width: 600px) {
+
+            .ui-layer {
+                padding: 14px;
+            }
+
             .ui-header {
                 flex-direction: column;
-                gap: 12px;
+                gap: 10px;
                 align-items: flex-start;
             }
-            .brand-badge h1 { font-size: 16px; }
-            .modal-img-container { height: 280px; }
-            .cake-cloud {
-                min-width: 240px;
-                max-width: 300px;
-                font-size: 14px;
-                padding: 14px 18px 16px;
+
+            .brand-badge h1 {
+                font-size: 16px;
             }
-            .countdown-title { font-size: clamp(24px, 6vw, 48px); }
-            .countdown-subtitle { font-size: 14px; margin-bottom: 28px; }
+
+            .modal-img-container {
+                height: 280px;
+            }
+
+            /* =========================================
+               📱 MOBILE TERMINAL
+               ========================================= */
+
+            #terminal-overlay {
+                padding: 12px;
+                align-items: center;
+            }
+
+            .terminal-box {
+                width: 100%;
+                max-width: none;
+                max-height: calc(100dvh - 24px);
+                padding: 18px 16px;
+                border-radius: 14px;
+            }
+
+            .terminal-header {
+                margin-bottom: 14px;
+                padding-bottom: 10px;
+            }
+
+            .terminal-title {
+                font-size: 10px;
+            }
+
+            .dot {
+                width: 9px;
+                height: 9px;
+            }
+
+            .terminal-text {
+                font-size: 13px;
+                line-height: 1.65;
+                overflow-wrap: anywhere;
+                word-break: break-word;
+            }
+
+            .cursor {
+                width: 8px;
+                height: 16px;
+            }
+
+            /* =========================================
+               🎂 MOBILE CAKE CLOUD
+               ========================================= */
+
+            #cake-prompt {
+                top: 15%;
+                transform: translate(-50%, 15px) scale(0.75);
+            }
+
+            #cake-prompt.show {
+                transform: translate(-50%, 0) scale(0.75);
+            }
+
+            .cake-cloud {
+                min-width: 0;
+                width: min(250px, calc(100vw - 36px));
+                max-width: calc(100vw - 36px);
+                padding: 12px 16px 14px;
+                border-radius: 24px;
+            }
+
+            .cloud-title {
+                font-size: 18px;
+            }
+
+            .cloud-text {
+                font-size: 13px;
+                line-height: 1.35;
+            }
+
+            .cloud-arrow {
+                margin-top: 5px;
+                font-size: 20px;
+            }
+
+            /* =========================================
+               🎉 MOBILE BIRTHDAY MESSAGE
+               ========================================= */
+
+            .countdown-title {
+                font-size: clamp(24px, 6vw, 48px);
+            }
+
+            .countdown-subtitle {
+                font-size: 14px;
+                margin-bottom: 28px;
+            }
         }
     </style>
 </head>
@@ -2058,11 +2173,23 @@
         function updateCakePromptPosition() {
             if (!cakePromptVisible || !cakePrompt) return;
 
-            cakePromptPosition.set(0, 3.15, 0);
+            const isMobile = window.innerWidth <= 600;
+
+            cakePromptPosition.set(
+                0,
+                isMobile ? 3.45 : 3.15,
+                0
+            );
+
             cakePromptPosition.project(camera);
 
-            const screenX = (cakePromptPosition.x * 0.5 + 0.5) * window.innerWidth;
-            const screenY = (-cakePromptPosition.y * 0.5 + 0.5) * window.innerHeight;
+            const screenX =
+                (cakePromptPosition.x * 0.5 + 0.5) *
+                window.innerWidth;
+
+            const screenY =
+                (-cakePromptPosition.y * 0.5 + 0.5) *
+                window.innerHeight;
 
             cakePrompt.style.left = `${screenX}px`;
             cakePrompt.style.top = `${screenY}px`;
@@ -2172,7 +2299,12 @@
             const ctx = canvas.getContext('2d');
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            ctx.font = 'bold 80px Arial';
+            const isMobile = window.innerWidth <= 600;
+
+            ctx.font = isMobile
+                ? 'bold 62px Arial'
+                : 'bold 80px Arial';
+
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.shadowColor = '#ff69b4';
@@ -2193,7 +2325,12 @@
             const message = new THREE.Sprite(material);
             message.name = 'birthdayMessage';
             message.position.set(0, 2.8, 0);
-            message.scale.set(4.5, 1.12, 1);
+
+            if (isMobile) {
+                message.scale.set(3.0, 0.75, 1);
+            } else {
+                message.scale.set(4.5, 1.12, 1);
+            }
 
             message.userData.startTime = Date.now();
             message.userData.startY = 2.8;
