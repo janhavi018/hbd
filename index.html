@@ -2304,9 +2304,9 @@
 
             const isMobile = window.innerWidth <= 600;
 
-            // Smaller font on mobile but plenty of horizontal space
+            // Larger font on mobile with plenty of horizontal space in wide canvas
             ctx.font = isMobile
-                ? 'bold 70px Arial, sans-serif'
+                ? 'bold 85px Arial, sans-serif'
                 : 'bold 100px Arial, sans-serif';
 
             ctx.textAlign = 'center';
@@ -2338,13 +2338,13 @@
 
             message.name = 'birthdayMessage';
 
-            message.position.set(0, 3.0, 0);
-
             // Canvas is 6:1 ratio (2400:400)
-            // On mobile, make sprite narrower so it fits in viewport and stays centered
+            // On mobile, shift left and make sprite narrower so it's centered
             if (isMobile) {
+                message.position.set(-0.6, 3.0, 0);
                 message.scale.set(3.8, 0.63, 1);
             } else {
+                message.position.set(0, 3.0, 0);
                 message.scale.set(6.5, 1.08, 1);
             }
 
