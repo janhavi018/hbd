@@ -1905,6 +1905,7 @@
         // ----------------------------------------------------
 
         let terminalStarted = false;
+        let audioUnlocked = false;
 
         const audioPlayer = new Audio('Gigi Perez - Sailor Song (Lyrics).mp3');
         audioPlayer.loop = true;
@@ -1938,17 +1939,17 @@
             musicBtnText.textContent = 'Music Off';
         }
 
-        // Try autoplay immediately (but only after midnight)
         function startMusic() {
             if (!terminalStarted) return;
             if (!isMusicPlaying || !audioPlayer.paused) return;
 
             audioPlayer.play()
                 .then(() => {
-                    console.log('🎵 Music started');
+                    audioUnlocked = true;
+                    console.log('🎵 Music started with init.sh');
                 })
                 .catch(() => {
-                    console.log('🎵 Autoplay blocked - waiting for first interaction');
+                    console.log('🎵 Autoplay blocked - waiting for interaction');
                 });
         }
 
@@ -1959,24 +1960,39 @@
         // If autoplay is blocked, the first tap anywhere on the
         // terminal silently starts the music.
 
-        function unlockMusicFromTerminal() {
-            if (!terminalStarted) return;
-            if (!isMusicPlaying || !audioPlayer.paused) return;
+        function unlockMusicFromInteraction() {
+            // During countdown: unlock audio permission silently
+            if (!terminalStarted) {
+                if (!audioUnlocked) {
+                    const unlockPromise = audioPlayer.play();
 
-            audioPlayer.play()
-                .then(() => {
-                    console.log('🎵 Music unlocked from interaction');
-                })
-                .catch(error => {
-                    console.log('🎵 Music still blocked:', error);
-                });
+                    unlockPromise.then(() => {
+                        audioPlayer.pause();
+                        audioUnlocked = true;
+                        console.log('🔓 Audio unlocked silently during countdown');
+                    }).catch(() => {
+                        console.log('🔒 Browser still requires interaction');
+                    });
+                }
+                return;
+            }
+
+            // After init.sh starts: play immediately if needed
+            if (isMusicPlaying && audioPlayer.paused) {
+                audioPlayer.play()
+                    .then(() => {
+                        audioUnlocked = true;
+                        console.log('🎵 Music unlocked from interaction');
+                    })
+                    .catch(error => {
+                        console.log('🎵 Music still blocked:', error);
+                    });
+            }
         }
 
-        // Listen for the FIRST interaction anywhere on the page, not just the terminal
-        // { once: true } automatically removes the listener after the first trigger
-        window.addEventListener('pointerdown', unlockMusicFromTerminal, { once: true });
-        window.addEventListener('touchstart', unlockMusicFromTerminal, { once: true });
-        window.addEventListener('keydown', unlockMusicFromTerminal, { once: true });
+        window.addEventListener('pointerdown', unlockMusicFromInteraction);
+        window.addEventListener('touchstart', unlockMusicFromInteraction);
+        window.addEventListener('keydown', unlockMusicFromInteraction);
 
         // MUSIC BUTTON TOGGLE
         function toggleMusic() {
