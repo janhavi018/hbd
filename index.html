@@ -871,7 +871,7 @@
             glassGroup.add(base);
 
             // Red Wine Liquid
-            const wineMat = new THREE.MeshStandardMaterial({ color: 0x7209b7, roughness: 0.2, transparent: true, opacity: 0.85 });
+            const wineMat = new THREE.MeshStandardMaterial({ color: 0x722f37, roughness: 0.2, transparent: true, opacity: 0.85 });
             const wine = new THREE.Mesh(new THREE.CylinderGeometry(0.075, 0.042, 0.10, 24), wineMat);
             wine.position.y = 0.18;
             glassGroup.add(wine);
@@ -1073,7 +1073,7 @@
             console.log(`📦 Loading model: ${path} with fallback:`, fallbackCreator.name);
             let loaded = false;
 
-            // Trigger fallback if GLTF takes > 3.5s or fails
+            // Trigger fallback if GLTF takes > 8s or fails (8s for slower networks like Vercel)
             const timer = setTimeout(() => {
                 if (!loaded) {
                     loaded = true;
@@ -1085,7 +1085,7 @@
                     dinnerGroup.add(procObj);
                     console.log('Added to dinnerGroup');
                 }
-            }, 3500);
+            }, 8000);
 
             gltfLoader.load(
                 path,
