@@ -704,6 +704,35 @@
             50% { transform: translateY(6px); }
         }
 
+        /* Birthday Message Overlay */
+        #birthday-message {
+            position: fixed;
+            z-index: 1000;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -100%) scale(0.7);
+            color: white;
+            font-family: Arial, sans-serif;
+            font-weight: bold;
+            font-size: 28px;
+            white-space: nowrap;
+            text-align: center;
+            text-shadow:
+                0 0 8px #ff69b4,
+                0 0 18px #ff69b4,
+                0 0 30px rgba(255, 105, 180, 0.8);
+            opacity: 0;
+            pointer-events: none;
+            transition:
+                opacity 0.5s ease,
+                transform 0.5s ease;
+        }
+
+        #birthday-message.show {
+            opacity: 1;
+            transform: translate(-50%, -100%) scale(1);
+        }
+
         @media (max-width: 600px) {
 
             .ui-layer {
@@ -813,6 +842,10 @@
             .countdown-subtitle {
                 font-size: 14px;
                 margin-bottom: 28px;
+            }
+
+            #birthday-message {
+                font-size: 23px;
             }
         }
     </style>
@@ -2286,70 +2319,38 @@
         }
 
         // Show floating birthday message
+        function updateBirthdayMessagePosition() {
+            const birthdayMessage = document.getElementById('birthday-message');
+
+            if (!birthdayMessage || !birthdayMessage.classList.contains('show')) {
+                return;
+            }
+
+            const cakeWorldPosition = new THREE.Vector3();
+            cake.getWorldPosition(cakeWorldPosition);
+
+            cakeWorldPosition.y += 1.8;
+
+            cakeWorldPosition.project(camera);
+
+            const screenX =
+                (cakeWorldPosition.x * 0.5 + 0.5) * window.innerWidth;
+
+            const screenY =
+                (-cakeWorldPosition.y * 0.5 + 0.5) * window.innerHeight;
+
+            birthdayMessage.style.left = `${screenX}px`;
+            birthdayMessage.style.top = `${screenY}px`;
+        }
+
         function showBirthdayMessage() {
-            const oldMessage = scene.getObjectByName('birthdayMessage');
+            const birthdayMessage = document.getElementById('birthday-message');
 
-            if (oldMessage) {
-                if (oldMessage.parent) {
-                    oldMessage.parent.remove(oldMessage);
-                }
-            }
+            if (!birthdayMessage) return;
 
-            const canvas = document.createElement('canvas');
-            canvas.width = 2400;
-            canvas.height = 400;
+            birthdayMessage.classList.add('show');
 
-            const ctx = canvas.getContext('2d');
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            const isMobile = window.innerWidth <= 600;
-
-            ctx.font = isMobile
-                ? 'bold 85px Arial, sans-serif'
-                : 'bold 100px Arial, sans-serif';
-
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            ctx.shadowColor = '#ff69b4';
-            ctx.shadowBlur = isMobile ? 25 : 35;
-
-            ctx.fillStyle = '#ffffff';
-
-            ctx.fillText(
-                'Happy Birthday, Nikhil! ❤️',
-                canvas.width / 2,
-                canvas.height / 2
-            );
-
-            const texture = new THREE.CanvasTexture(canvas);
-            texture.colorSpace = THREE.SRGBColorSpace;
-            texture.needsUpdate = true;
-
-            const material = new THREE.SpriteMaterial({
-                map: texture,
-                transparent: true,
-                opacity: 0,
-                depthTest: false,
-                depthWrite: false
-            });
-
-            const message = new THREE.Sprite(material);
-
-            message.name = 'birthdayMessage';
-
-            cake.add(message);
-
-            message.position.set(0, 1.45, 0);
-
-            if (isMobile) {
-                message.scale.set(3.8, 0.63, 1);
-            } else {
-                message.scale.set(6.5, 1.08, 1);
-            }
-
-            message.userData.startTime = Date.now();
-            message.userData.startY = 1.45;
+            updateBirthdayMessagePosition();
         }
 
         // Click handler for candle
@@ -2421,34 +2422,6 @@
                 }
             }
 
-            // Animate birthday message
-            const birthdayMessage = scene.getObjectByName('birthdayMessage');
-            if (birthdayMessage) {
-                const elapsed = (Date.now() - birthdayMessage.userData.startTime) / 1000;
-
-                // Float upward
-                birthdayMessage.position.y = birthdayMessage.userData.startY + elapsed * 0.35;
-
-                // Fade in
-                if (elapsed < 0.5) {
-                    birthdayMessage.material.opacity = elapsed / 0.5;
-                }
-                // Stay visible
-                else if (elapsed < 3) {
-                    birthdayMessage.material.opacity = 1;
-                }
-                // Fade out
-                else if (elapsed < 4) {
-                    birthdayMessage.material.opacity = 1 - (elapsed - 3);
-                }
-                // Remove
-                else {
-                    if (birthdayMessage.parent) {
-                        birthdayMessage.parent.remove(birthdayMessage);
-                    }
-                }
-            }
-
             // Update fireworks particles
             for (let i = fireworks.length - 1; i >= 0; i--) {
                 const particle = fireworks[i];
@@ -2494,6 +2467,8 @@
                 if (posArray[i*3 + 1] > 6.5) posArray[i*3 + 1] = 0;
             }
             posAttr.needsUpdate = true;
+
+            updateBirthdayMessagePosition();
 
             controls.update();
             renderer.render(scene, camera);
@@ -2614,6 +2589,11 @@
         // Start the 3D scene underneath the countdown
         animate();
     </script>
+
+    <!-- Birthday Message Overlay -->
+    <div id="birthday-message">
+        Happy Birthday, Nikhil! ❤️
+    </div>
 </body>
 
 </html>
