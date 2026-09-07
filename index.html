@@ -1899,280 +1899,124 @@
             }
         });
 
-        // ========================================================
-        // 🎵 AUDIO PLAYER - Gigi Perez "Sailor Song"
-        // Music starts ONLY when init.sh begins
-        // Countdown remains completely silent
-        // ========================================================
+        // AUDIO PLAYER - Gigi Perez Sailor Song
+        // Clever autoplay with invisible terminal unlock
+        // Music only plays AFTER midnight countdown completes
+        // ----------------------------------------------------
 
         let terminalStarted = false;
-        let audioPrimed = false;
+        let audioUnlocked = false;
 
         const audioPlayer = new Audio('Gigi Perez - Sailor Song (Lyrics).mp3');
-
         audioPlayer.loop = true;
         audioPlayer.preload = 'auto';
 
-        // --------------------------------------------------------
-        // Resume playback position
-        // --------------------------------------------------------
-
+        // Resume from where it left off after a reload, instead of restarting from 0:00
         const savedTime = sessionStorage.getItem('musicTime');
-
         if (savedTime) {
             audioPlayer.currentTime = parseFloat(savedTime);
         }
 
-        // --------------------------------------------------------
-        // Remember Music On / Off state
-        // --------------------------------------------------------
-
+        // Respect whatever on/off state the user last left it in
         const savedPlayingState = sessionStorage.getItem('musicPlaying');
+        let isMusicPlaying = savedPlayingState !== null ? savedPlayingState === 'true' : true;
 
-        let isMusicPlaying =
-            savedPlayingState !== null
-                ? savedPlayingState === 'true'
-                : true;
-
-        // --------------------------------------------------------
-        // Save playback position when leaving page
-        // --------------------------------------------------------
-
+        // Save playback position + on/off state right before the page unloads -
+        // this covers reload, closing the tab, and navigating away
         window.addEventListener('pagehide', () => {
-
-            sessionStorage.setItem(
-                'musicTime',
-                audioPlayer.currentTime
-            );
-
-            sessionStorage.setItem(
-                'musicPlaying',
-                isMusicPlaying
-            );
-
+            sessionStorage.setItem('musicTime', audioPlayer.currentTime);
+            sessionStorage.setItem('musicPlaying', isMusicPlaying);
         });
-
-        // --------------------------------------------------------
-        // Music button
-        // --------------------------------------------------------
 
         const musicBtn = document.getElementById('music-btn');
         const musicBtnText = document.getElementById('music-btn-text');
 
-        function updateMusicButton() {
-
-            if (isMusicPlaying) {
-
-                musicBtn.classList.add('active');
-                musicBtnText.textContent = 'Music On 🎵';
-
-            } else {
-
-                musicBtn.classList.remove('active');
-                musicBtnText.textContent = 'Music Off';
-
-            }
-
+        if (isMusicPlaying) {
+            musicBtn.classList.add('active');
+            musicBtnText.textContent = 'Music On 🎵';
+        } else {
+            musicBtn.classList.remove('active');
+            musicBtnText.textContent = 'Music Off';
         }
-
-        updateMusicButton();
-
-        // ========================================================
-        // 🔓 SILENTLY PRIME AUDIO
-        // ========================================================
-        //
-        // This does NOT let the user hear the song.
-        //
-        // We use the user's first interaction anywhere on the page
-        // to obtain browser playback permission.
-        //
-        // IMPORTANT:
-        // The audio remains muted while countdown is running.
-        // ========================================================
-
-        function primeAudio() {
-
-            if (audioPrimed) return;
-
-            audioPrimed = true;
-
-            const wasMuted = audioPlayer.muted;
-
-            // Absolutely silent during countdown
-            audioPlayer.muted = true;
-
-            audioPlayer.play()
-                .then(() => {
-
-                    console.log('🔓 Audio successfully primed silently');
-
-                    // Keep it paused so there is ZERO music during countdown
-                    audioPlayer.pause();
-
-                    // Restore mute state
-                    audioPlayer.muted = wasMuted;
-
-                })
-                .catch(() => {
-
-                    audioPrimed = false;
-
-                    audioPlayer.muted = wasMuted;
-
-                    console.log('🔒 Audio could not be primed yet');
-
-                });
-
-        }
-
-        // --------------------------------------------------------
-        // First interaction anywhere on the page
-        // --------------------------------------------------------
-        //
-        // This is ONLY for unlocking the browser's audio permission.
-        // It does NOT start audible music.
-        // --------------------------------------------------------
-
-        function firstUserInteraction() {
-
-            if (!audioPrimed) {
-                primeAudio();
-            }
-
-            // Once we have received the first gesture,
-            // these listeners are no longer needed.
-            window.removeEventListener('pointerdown', firstUserInteraction);
-            window.removeEventListener('keydown', firstUserInteraction);
-        }
-
-        window.addEventListener(
-            'pointerdown',
-            firstUserInteraction,
-            { passive: true }
-        );
-
-        window.addEventListener(
-            'keydown',
-            firstUserInteraction,
-            { passive: true }
-        );
-
-        // ========================================================
-        // 🎵 START MUSIC WITH init.sh
-        // ========================================================
 
         function startMusic() {
-
-            // Never start before terminal
             if (!terminalStarted) return;
-
-            // Respect Music Off
-            if (!isMusicPlaying) return;
-
-            // Already playing
-            if (!audioPlayer.paused) return;
-
-            // Make sure the actual song is audible
-            audioPlayer.muted = false;
+            if (!isMusicPlaying || !audioPlayer.paused) return;
 
             audioPlayer.play()
                 .then(() => {
-
+                    audioUnlocked = true;
                     console.log('🎵 Music started with init.sh');
-
-                    sessionStorage.setItem(
-                        'musicPlaying',
-                        'true'
-                    );
-
                 })
-                .catch((error) => {
-
-                    console.log(
-                        '🎵 Browser blocked automatic playback:',
-                        error
-                    );
-
+                .catch(() => {
+                    console.log('🎵 Autoplay blocked - waiting for interaction');
                 });
-
         }
 
-        // ========================================================
-        // 🎵 MUSIC BUTTON
-        // ========================================================
+        // Music intentionally waits until the birthday experience begins.
+        // This prevents music from playing during the countdown.
 
-        function toggleMusic() {
+        // INVISIBLE TERMINAL TAP UNLOCK
+        // If autoplay is blocked, the first tap anywhere on the
+        // terminal silently starts the music.
 
-            if (isMusicPlaying) {
+        function unlockMusicFromInteraction() {
+            // During countdown: unlock audio permission silently
+            if (!terminalStarted) {
+                if (!audioUnlocked) {
+                    const unlockPromise = audioPlayer.play();
 
-                // --------------------------------------------
-                // TURN MUSIC OFF
-                // --------------------------------------------
-
-                isMusicPlaying = false;
-
-                audioPlayer.pause();
-
-                musicBtn.classList.remove('active');
-                musicBtnText.textContent = 'Music Off';
-
-                sessionStorage.setItem(
-                    'musicPlaying',
-                    'false'
-                );
-
-            } else {
-
-                // --------------------------------------------
-                // TURN MUSIC ON
-                // --------------------------------------------
-
-                isMusicPlaying = true;
-
-                // If terminal hasn't started yet,
-                // don't play anything during countdown.
-                if (!terminalStarted) {
-
-                    updateMusicButton();
-
-                    sessionStorage.setItem(
-                        'musicPlaying',
-                        'true'
-                    );
-
-                    return;
-                }
-
-                audioPlayer.muted = false;
-
-                audioPlayer.play()
-                    .then(() => {
-
-                        updateMusicButton();
-
-                        sessionStorage.setItem(
-                            'musicPlaying',
-                            'true'
-                        );
-
-                    })
-                    .catch(error => {
-
-                        console.log(
-                            'Could not start music:',
-                            error
-                        );
-
+                    unlockPromise.then(() => {
+                        audioPlayer.pause();
+                        audioUnlocked = true;
+                        console.log('🔓 Audio unlocked silently during countdown');
+                    }).catch(() => {
+                        console.log('🔒 Browser still requires interaction');
                     });
-
+                }
+                return;
             }
 
+            // After init.sh starts: play immediately if needed
+            if (isMusicPlaying && audioPlayer.paused) {
+                audioPlayer.play()
+                    .then(() => {
+                        audioUnlocked = true;
+                        console.log('🎵 Music unlocked from interaction');
+                    })
+                    .catch(error => {
+                        console.log('🎵 Music still blocked:', error);
+                    });
+            }
         }
 
-        musicBtn.addEventListener(
-            'click',
-            toggleMusic
-        );
+        window.addEventListener('pointerdown', unlockMusicFromInteraction);
+        window.addEventListener('touchstart', unlockMusicFromInteraction);
+        window.addEventListener('keydown', unlockMusicFromInteraction);
+
+        // MUSIC BUTTON TOGGLE
+        function toggleMusic() {
+            if (isMusicPlaying) {
+                // Turn music OFF
+                isMusicPlaying = false;
+                audioPlayer.pause();
+                musicBtn.classList.remove('active');
+                musicBtnText.textContent = 'Music Off';
+            } else {
+                // Turn music ON
+                isMusicPlaying = true;
+                audioPlayer.play()
+                    .then(() => {
+                        musicBtn.classList.add('active');
+                        musicBtnText.textContent = 'Music On 🎵';
+                    })
+                    .catch(error => {
+                        console.log('Could not start music:', error);
+                    });
+            }
+        }
+
+        musicBtn.addEventListener('click', toggleMusic);
 
         // Cake cutting interaction
         let cakeCut = false;
