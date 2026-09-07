@@ -2351,6 +2351,10 @@
             birthdayMessage.classList.add('show');
 
             updateBirthdayMessagePosition();
+
+            setTimeout(() => {
+                birthdayMessage.classList.remove('show');
+            }, 2000);
         }
 
         // Click handler for candle
@@ -2370,7 +2374,7 @@
         });
 
         // ----------------------------------------------------
-        // ANIMATION LOOP
+        // ANIMATION LOOPshowBirthdayMessage
         // ----------------------------------------------------
         let clock = new THREE.Clock();
 
