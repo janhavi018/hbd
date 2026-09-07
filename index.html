@@ -2288,32 +2288,44 @@
         // Show floating birthday message
         function showBirthdayMessage() {
             const oldMessage = scene.getObjectByName('birthdayMessage');
+
             if (oldMessage) {
                 scene.remove(oldMessage);
             }
 
+            // Make the texture much wider so mobile browsers don't clip the text
             const canvas = document.createElement('canvas');
-            canvas.width = 1024;
-            canvas.height = 256;
+            canvas.width = 1600;
+            canvas.height = 400;
 
             const ctx = canvas.getContext('2d');
+
             ctx.clearRect(0, 0, canvas.width, canvas.height);
 
             const isMobile = window.innerWidth <= 600;
 
+            // Mobile text is slightly smaller, but the canvas itself is much wider
             ctx.font = isMobile
-                ? 'bold 62px Arial'
-                : 'bold 80px Arial';
+                ? 'bold 82px Arial, sans-serif'
+                : 'bold 100px Arial, sans-serif';
 
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
+
             ctx.shadowColor = '#ff69b4';
-            ctx.shadowBlur = 30;
+            ctx.shadowBlur = isMobile ? 25 : 35;
 
             ctx.fillStyle = '#ffffff';
-            ctx.fillText('Happy Birthday Nikhil! ❤️', 512, 128);
+
+            // Full birthday message
+            ctx.fillText(
+                'Happy Birthday, Nikhil! ❤️',
+                canvas.width / 2,
+                canvas.height / 2
+            );
 
             const texture = new THREE.CanvasTexture(canvas);
+            texture.colorSpace = THREE.SRGBColorSpace;
             texture.needsUpdate = true;
 
             const material = new THREE.SpriteMaterial({
@@ -2323,17 +2335,20 @@
             });
 
             const message = new THREE.Sprite(material);
-            message.name = 'birthdayMessage';
-            message.position.set(0, 2.8, 0);
 
+            message.name = 'birthdayMessage';
+
+            message.position.set(0, 3.0, 0);
+
+            // Keep the same 4:1 aspect ratio as the canvas
             if (isMobile) {
-                message.scale.set(3.0, 0.75, 1);
+                message.scale.set(4.5, 1.125, 1);
             } else {
-                message.scale.set(4.5, 1.12, 1);
+                message.scale.set(5.0, 1.25, 1);
             }
 
             message.userData.startTime = Date.now();
-            message.userData.startY = 2.8;
+            message.userData.startY = 3.0;
 
             scene.add(message);
         }
