@@ -8,9 +8,9 @@
     <!-- iOS Specific Meta Tags -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Lovie3D — For You ♡">
+    <meta name="apple-mobile-web-app-title" content="Happy Birthday Nikhil♡">
 
-    <title>Lovie3D — For You ♡</title>
+    <title>Happy Birthday Nikhil ♡</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -339,6 +339,92 @@
             transform: scale(1.15);
         }
 
+        /* Cute Cake Prompt Cloud */
+        #cake-prompt {
+            position: fixed;
+            left: 50%;
+            top: 27%;
+            transform: translate(-50%, 20px) scale(0.85);
+            z-index: 150;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #cake-prompt.show {
+            opacity: 1;
+            transform: translate(-50%, 0) scale(1);
+        }
+
+        .cake-cloud {
+            position: relative;
+            min-width: 270px;
+            max-width: 340px;
+            padding: 18px 24px 20px;
+            border-radius: 28px;
+            background: rgba(255, 250, 253, 0.94);
+            color: #5a2949;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.9);
+            box-shadow: 0 15px 45px rgba(0, 0, 0, 0.25), 0 0 35px rgba(255, 182, 193, 0.55);
+            backdrop-filter: blur(14px);
+            animation: cloudFloat 3s ease-in-out infinite;
+        }
+
+        .cake-cloud::before,
+        .cake-cloud::after {
+            content: "";
+            position: absolute;
+            background: rgba(255, 250, 253, 0.94);
+            border-radius: 50%;
+            z-index: -1;
+        }
+
+        .cake-cloud::before {
+            width: 42px;
+            height: 42px;
+            left: 24px;
+            bottom: -10px;
+        }
+
+        .cake-cloud::after {
+            width: 24px;
+            height: 24px;
+            left: 8px;
+            bottom: -20px;
+        }
+
+        .cloud-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 21px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .cloud-text {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            line-height: 1.45;
+            color: #74445d;
+        }
+
+        .cloud-arrow {
+            display: block;
+            margin-top: 8px;
+            font-size: 24px;
+            animation: arrowBounce 1s ease-in-out infinite;
+        }
+
+        @keyframes cloudFloat {
+            0%, 100% { margin-top: 0; }
+            50% { margin-top: -8px; }
+        }
+
+        @keyframes arrowBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(6px); }
+        }
+
         @media (max-width: 600px) {
             .ui-header {
                 flex-direction: column;
@@ -347,6 +433,7 @@
             }
             .brand-badge h1 { font-size: 16px; }
             .modal-img-container { height: 280px; }
+            .cake-cloud { min-width: 240px; max-width: 300px; font-size: 14px; }
         }
     </style>
 </head>
@@ -382,7 +469,7 @@
                 <div class="dot dot-red"></div>
                 <div class="dot dot-yellow"></div>
                 <div class="dot dot-green"></div>
-                <div class="terminal-title">lovie3d_init.sh</div>
+                <div class="terminal-title">happyBirthdayNikhil_init.sh</div>
             </div>
             <div class="terminal-text" id="terminal-text"></div>
         </div>
@@ -400,6 +487,18 @@
         </div>
     </div>
 
+    <!-- Cute Cake Prompt Cloud -->
+    <div id="cake-prompt">
+        <div class="cake-cloud">
+            <div class="cloud-title">🎂 Make a wish!</div>
+            <div class="cloud-text">Click the cake to blow out the candles</div>
+            <span class="cloud-arrow">↓</span>
+        </div>
+    </div>
+
+    <!-- Load Memory Data -->
+    <script src="memories-data.js"></script>
+
     <!-- Three.js Module Importmap -->
     <script type="importmap">
         {
@@ -415,30 +514,14 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 
-        // ----------------------------------------------------
-        // PHOTO MEMORIES & CAPTIONS DATA
-        // ----------------------------------------------------
-        const photoMemories = [
-            { file: '1.jpeg', title: 'Cherry Blossom Walk', desc: 'Hand in hand beneath soft pink petals in bloom ♡' },
-            { file: '3.jpeg', title: 'Sweet Sundae Date', desc: 'Sharing double scoops, sweet sprinkles, and endless smiles ♡' },
-            { file: '4.jpeg', title: 'Stargazing Night', desc: 'Lying under a million glowing stars wishing for forever ♡' },
-            { file: '5.jpeg', title: 'Fireplace Cozy Cocoa', desc: 'Warm sweaters, hot chocolate, and endless warm hugs ♡' },
-            { file: '6.jpeg', title: 'Tandem Bike Park Ride', desc: 'Cruising together through sunny flower gardens ♡' },
-            { file: '7.jpeg', title: 'Fairy Light Dance', desc: 'Dancing under sparkling lights in our fairytale night ♡' },
-            { file: '8.jpeg', title: 'Silly Memories Selfie', desc: 'Capturing joyful smiles and pure happiness together ♡' },
-            { file: '9.jpeg', title: 'Rainy Day Umbrella', desc: 'Staying warm and close under one little umbrella ♡' },
-            { file: '10.jpeg', title: 'Fireworks Reflection', desc: 'Magic lights in the night sky, brighter love in our hearts ♡' },
-            { file: '11.jpeg', title: 'Winter Wonderland', desc: 'Building cute snowmen and laughing in the snow ♡' },
-            { file: '12.jpeg', title: 'Romantic Dinner Night', desc: 'A special candlelit table dedicated just to you ♡' },
-            { file: 'tavolo2.jpeg', title: 'Unwrapping Love', desc: 'Every single day with you is the sweetest gift ♡' }
-        ];
+        // Photo memories data is loaded from memories-data.js
 
         // ----------------------------------------------------
         // TERMINAL TYPEWRITER INTRO
         // ----------------------------------------------------
         const terminalText = document.getElementById('terminal-text');
         const terminalOverlay = document.getElementById('terminal-overlay');
-        const textToType = 'Hey Lovie...\nThis is a little special world I created just for you...\nFor all the times you feel alone or upset...\naccess_granted: I LOVE YOU FOREVER <3';
+        const textToType = 'Happy birthday, Nikhil. ❤️\n\nI wish I could actually be there—sitting across that dinner table, watching you cut your cake and probably making fun of you for something stupid\n\nSo I made this little world where, for a moment, I can pretend I am\n\nI hope this year is kinder to you. I hope you get more reasons to smile, more peaceful days, and everything your heart has been waiting for\n\nAnd today, just let yourself be happy\n\nHappy 26th. 🥂🎂\n\naccess_granted: I LOVE YOU FOREVER ❤️';
 
         let charIndex = 0;
         function typeWriter() {
@@ -455,6 +538,12 @@
                     terminalOverlay.classList.add('fade-out');
                     setTimeout(() => {
                         terminalOverlay.style.display = 'none';
+
+                        // 🎂 Wait 3 seconds after terminal completely disappears
+                        setTimeout(() => {
+                            showCakePrompt();
+                        }, 3000);
+
                     }, 1200);
                 }, 1400);
             }
@@ -469,7 +558,7 @@
         // Background loader with cartoon replacement fallback
         const textureLoader = new THREE.TextureLoader();
         textureLoader.load(
-            'background.jpg',
+            'background2.jpeg',
             (texture) => {
                 texture.colorSpace = THREE.SRGBColorSpace;
                 scene.background = texture;
@@ -606,7 +695,7 @@
 
         const floorPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(24, 24),
-            new THREE.MeshStandardMaterial({ map: createMandalaFloorTexture(), roughness: 0.5, metalness: 0.1 })
+            new THREE.MeshStandardMaterial({ map: createMandalaFloorTexture(), roughness: 0.5, metalness: 0.1, transparent: true, opacity: 0.5 })
         );
         floorPlane.rotation.x = -Math.PI / 2;
         floorPlane.receiveShadow = true;
@@ -708,7 +797,7 @@
                 bowlGroup.add(stick);
             }
 
-            bowlGroup.position.y = tableTopHeight + 0.11;
+            // Position is handled by loadModelWithFallback, don't add extra here
             return bowlGroup;
         }
 
@@ -751,7 +840,6 @@
                 platterGroup.add(maki);
             }
 
-            platterGroup.position.y = tableTopHeight + 0.02;
             return platterGroup;
         }
 
@@ -759,15 +847,11 @@
         function createProceduralWineGlass() {
             const glassGroup = new THREE.Group();
 
-            // Glass Cup Physical Material
-            const glassMat = new THREE.MeshPhysicalMaterial({
-                color: 0xffffff,
-                transparent: true,
-                opacity: 0.35,
-                roughness: 0.05,
-                metalness: 0.0,
-                transmission: 0.92,
-                ior: 1.5
+            // Glass Cup Material - Black glass
+            const glassMat = new THREE.MeshStandardMaterial({
+                color: 0x050505,
+                roughness: 0.25,
+                metalness: 0.1
             });
 
             // Bowl
@@ -792,7 +876,6 @@
             wine.position.y = 0.18;
             glassGroup.add(wine);
 
-            glassGroup.position.y = tableTopHeight + 0.01;
             return glassGroup;
         }
 
@@ -844,7 +927,6 @@
             label.position.y = 0.22;
             bottleGroup.add(label);
 
-            bottleGroup.position.y = tableTopHeight + 0.01;
             return bottleGroup;
         }
 
@@ -889,11 +971,66 @@
                 vaseGroup.add(stem);
             }
 
-            vaseGroup.position.y = tableTopHeight + 0.01;
             return vaseGroup;
         }
 
-        // 6. Candle with Flickering Light
+        // 6. Procedural Birthday Cake
+        function createProceduralCake() {
+            console.log('🍰 Creating procedural cake!');
+            const cakeGroup = new THREE.Group();
+
+            // Cake layers (3 tiers)
+            const layerColors = [0x8b4513, 0xa0522d, 0x7b3f00]; // Brown tones for chocolate cake
+            const frostingColor = 0xf0d8c0; // Cream frosting
+
+            for(let layer = 0; layer < 3; layer++) {
+                const layerRadius = 0.55 - (layer * 0.12); // Bigger cake
+                const layerHeight = 0.25;
+                const layerY = layer * (layerHeight + 0.03);
+
+                // Cake layer
+                const cakeMat = new THREE.MeshStandardMaterial({ color: layerColors[layer], roughness: 0.6 });
+                const cakeGeom = new THREE.CylinderGeometry(layerRadius, layerRadius, layerHeight, 32);
+                const cakeMesh = new THREE.Mesh(cakeGeom, cakeMat);
+                cakeMesh.position.y = layerY;
+                cakeMesh.castShadow = true;
+                cakeMesh.receiveShadow = true;
+                cakeGroup.add(cakeMesh);
+
+                // Frosting top
+                const frostMat = new THREE.MeshPhysicalMaterial({ color: frostingColor, roughness: 0.3, metalness: 0.1 });
+                const frostGeom = new THREE.CylinderGeometry(layerRadius + 0.01, layerRadius + 0.01, 0.03, 32);
+                const frostMesh = new THREE.Mesh(frostGeom, frostMat);
+                frostMesh.position.y = layerY + (layerHeight * 0.5) + 0.02;
+                cakeGroup.add(frostMesh);
+            }
+
+            // Top candle
+            const candleGroup = new THREE.Group();
+            const candleWax = new THREE.Mesh(
+                new THREE.CylinderGeometry(0.02, 0.02, 0.18, 16),
+                new THREE.MeshStandardMaterial({ color: 0xffeb3b, roughness: 0.4 })
+            );
+            candleWax.position.y = 0.95; // On top of the cake
+            candleWax.castShadow = true;
+            candleGroup.add(candleWax);
+
+            // Flame glow
+            const flameGeom = new THREE.ConeGeometry(0.03, 0.12, 12);
+            const flameMat = new THREE.MeshBasicMaterial({ color: 0xff6600, transparent: true, opacity: 0.8 });
+            const flame = new THREE.Mesh(flameGeom, flameMat);
+            flame.position.y = 1.08;
+            candleGroup.add(flame);
+
+            cakeGroup.add(candleGroup);
+
+            // Store direct reference to the candle
+            cakeGroup.userData.candleGroup = candleGroup;
+
+            return cakeGroup;
+        }
+
+        // 7. Candle with Flickering Light
         function createCandle(posX, posZ) {
             const candleGroup = new THREE.Group();
 
@@ -933,17 +1070,20 @@
         // GLTF Model Loader with robust procedural replacement fallback
         const gltfLoader = new GLTFLoader();
         function loadModelWithFallback(path, scale, pos, rot, fallbackCreator) {
+            console.log(`📦 Loading model: ${path} with fallback:`, fallbackCreator.name);
             let loaded = false;
 
             // Trigger fallback if GLTF takes > 3.5s or fails
             const timer = setTimeout(() => {
                 if (!loaded) {
                     loaded = true;
-                    console.log(`Using procedural 3D replacement for ${path}`);
+                    console.log(`⏱️ TIMEOUT - Using procedural 3D replacement for ${path}`);
                     const procObj = fallbackCreator();
+                    console.log('Created object:', procObj);
                     procObj.position.set(pos.x, pos.y, pos.z);
                     if (rot) procObj.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
                     dinnerGroup.add(procObj);
+                    console.log('Added to dinnerGroup');
                 }
             }, 3500);
 
@@ -953,6 +1093,7 @@
                     if (loaded) return;
                     loaded = true;
                     clearTimeout(timer);
+                    console.log(`✅ Successfully loaded: ${path}`);
                     const model = gltf.scene;
                     model.scale.set(scale, scale, scale);
                     model.position.set(pos.x, pos.y, pos.z);
@@ -965,22 +1106,30 @@
                     if (loaded) return;
                     loaded = true;
                     clearTimeout(timer);
-                    console.warn(`GLTF error on ${path}, loading procedural replacement.`, err);
+                    console.warn(`❌ GLTF error on ${path}, loading procedural replacement.`, err);
                     const procObj = fallbackCreator();
+                    console.log('Created fallback object:', procObj);
                     procObj.position.set(pos.x, pos.y, pos.z);
                     if (rot) procObj.rotation.set(rot.x || 0, rot.y || 0, rot.z || 0);
                     dinnerGroup.add(procObj);
+                    console.log('Added fallback to dinnerGroup');
                 }
             );
         }
 
         // Assemble Dinner Setup
-        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: -1.15, y: 1.5, z: 0 }, null, createProceduralSushiBowl);
-        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: 1.15, y: 1.5, z: 0 }, null, createProceduralSushiBowl);
-        loadModelWithFallback('sushi/sushi/scene.gltf', 0.02, { x: 0, y: 1.52, z: 0.2 }, null, createProceduralSushiPlatter);
-        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: -0.9, y: 1.5, z: 0.5 }, null, createProceduralWineGlass);
-        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: 0.9, y: 1.5, z: 0.5 }, null, createProceduralWineGlass);
-        loadModelWithFallback('wine bottle/wine_bottle/scene.gltf', 0.15, { x: -0.5, y: 1.5, z: -0.5 }, null, createProceduralWineBottle);
+        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: -1.15, y: 1, z: 0 }, null, createProceduralSushiBowl);
+        loadModelWithFallback('bowl/sushi-bowl/scene.gltf', 0.8, { x: 0.9, y: 1, z: 0 }, null, createProceduralSushiBowl);
+
+        // Add birthday cake directly!
+        const cake = createProceduralCake();
+        cake.position.set(0, 1.7, 0);
+        dinnerGroup.add(cake);
+        console.log('🍰 Cake added to scene!');
+
+        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: -0.9, y: 1.9, z: 0.5 }, null, createProceduralWineGlass);
+        loadModelWithFallback('glass/simple_glass_cup/scene.gltf', 0.07, { x: 0.9, y: 1.9, z: 0.5 }, null, createProceduralWineGlass);
+        loadModelWithFallback('wine bottle/wine_bottle/scene.gltf', 0.15, { x: -0.5, y: 2.0, z: -0.5 }, null, createProceduralWineBottle);
         loadModelWithFallback('flowers/flowers_in_vase/scene.gltf', 2, { x: 0.1, y: 1.5, z: -0.4 }, null, createProceduralFlowerVase);
 
         const candle1 = createCandle(-1.0, -0.6);
@@ -1037,7 +1186,7 @@
                 chairGroup.add(leg);
             });
 
-            chairGroup.position.set(posX, 0, posZ);
+            chairGroup.position.set(posX, 0.32, posZ);
             chairGroup.rotation.y = rotY;
             return chairGroup;
         }
@@ -1229,17 +1378,17 @@
         }
 
         // Position Boy & Girl facing towards the dinner table center & their sushi bowls
-        const boyChair = createDiningChair(-1.0, 0.7, 0.6);
+        const boyChair = createDiningChair(-2.4, 1.2, 2.0);
         const boyChar = createBoyCharacter();
-        boyChar.position.set(-1.0, 0, 0.7);
-        boyChar.rotation.y = 0.6; // Facing inward toward table & food
+        boyChar.position.set(-2.4, 0.3, 1.2);
+        boyChar.rotation.y = 1.5; // Facing inward toward table & food
         scene.add(boyChair);
         scene.add(boyChar);
 
-        const girlChair = createDiningChair(1.0, 0.7, -0.6);
+        const girlChair = createDiningChair(2.4, 1.2, -2.0);
         const girlChar = createGirlCharacter();
-        girlChar.position.set(1.0, 0, 0.7);
-        girlChar.rotation.y = -0.6; // Facing inward toward table & food
+        girlChar.position.set(2.4, 0.3, 1.2);
+        girlChar.rotation.y = -1.5; // Facing inward toward table & food
         scene.add(girlChair);
         scene.add(girlChar);
 
@@ -1350,60 +1499,6 @@
 
         scene.add(memoryRing);
 
-        // ----------------------------------------------------
-        // BACKGROUND HEART CLOUD OF "I LOVE YOU" TEXT SPRITES
-        // ----------------------------------------------------
-        function createTextSprite() {
-            const canvas = document.createElement('canvas');
-            canvas.width = 256;
-            canvas.height = 64;
-            const ctx = canvas.getContext('2d');
-            ctx.font = 'Bold 26px Arial';
-            ctx.fillStyle = '#ff0000';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor = '#cc0000';
-            ctx.shadowBlur = 12;
-            ctx.fillText('i love you', 128, 32);
-            return new THREE.CanvasTexture(canvas);
-        }
-
-        const textTexture = createTextSprite();
-        const spriteMaterial = new THREE.SpriteMaterial({
-            map: textTexture,
-            transparent: true,
-            opacity: 0.7,
-            blending: THREE.AdditiveBlending
-        });
-
-        const heartCloud = new THREE.Group();
-        const spriteCount = 280;
-
-        function heartEquation(t, s, scale = 0.15) {
-            const x = scale * 16 * Math.pow(Math.sin(t), 3);
-            const y = scale * (13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-            const z = scale * 8 * Math.sin(t) * Math.sin(s);
-            return { x, y, z };
-        }
-
-        for (let i = 0; i < spriteCount; i++) {
-            const sprite = new THREE.Sprite(spriteMaterial.clone());
-            const u = Math.random() * Math.PI * 2;
-            const v = Math.random() * Math.PI;
-            const pos = heartEquation(u, v, 0.16);
-
-            pos.x += (Math.random() - 0.5) * 0.4;
-            pos.y += (Math.random() - 0.5) * 0.4;
-            pos.z += (Math.random() - 0.5) * 0.4;
-
-            sprite.position.set(pos.x, pos.y + 3.2, pos.z);
-            sprite.scale.set(0.55, 0.28, 1);
-            sprite.userData = { u, v };
-            heartCloud.add(sprite);
-        }
-
-        heartCloud.position.set(0, -1, -3);
-        scene.add(heartCloud);
 
         // ----------------------------------------------------
         // FLOATING MAGICAL SPARKLE PARTICLES
@@ -1477,86 +1572,316 @@
             }
         });
 
+        // AUDIO PLAYER - Gigi Perez Sailor Song
+        // Clever autoplay with invisible terminal unlock
         // ----------------------------------------------------
-        // PROCEDURAL ROMANTIC AUDIO SYNTH (Web Audio API)
-        // ----------------------------------------------------
-        let audioCtx = null;
-        let isMusicPlaying = false;
-        let audioInterval = null;
+
+        const audioPlayer = new Audio('Gigi Perez - Sailor Song (Lyrics).mp3');
+        audioPlayer.loop = true;
+        audioPlayer.preload = 'auto';
+
+        // Resume from where it left off after a reload, instead of restarting from 0:00
+        const savedTime = sessionStorage.getItem('musicTime');
+        if (savedTime) {
+            audioPlayer.currentTime = parseFloat(savedTime);
+        }
+
+        // Respect whatever on/off state the user last left it in
+        const savedPlayingState = sessionStorage.getItem('musicPlaying');
+        let isMusicPlaying = savedPlayingState !== null ? savedPlayingState === 'true' : true;
+
+        // Save playback position + on/off state right before the page unloads -
+        // this covers reload, closing the tab, and navigating away
+        window.addEventListener('pagehide', () => {
+            sessionStorage.setItem('musicTime', audioPlayer.currentTime);
+            sessionStorage.setItem('musicPlaying', isMusicPlaying);
+        });
 
         const musicBtn = document.getElementById('music-btn');
         const musicBtnText = document.getElementById('music-btn-text');
 
-        function playChordNote(freq, delay, duration) {
-            if (!audioCtx) return;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-
-            osc.type = 'sine';
-            osc.frequency.value = freq;
-
-            const now = audioCtx.currentTime + delay;
-            gain.gain.setValueAtTime(0.001, now);
-            gain.gain.exponentialRampToValueAtTime(0.12, now + 0.1);
-            gain.gain.exponentialRampToValueAtTime(0.001, now + duration);
-
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-
-            osc.start(now);
-            osc.stop(now + duration);
+        if (isMusicPlaying) {
+            musicBtn.classList.add('active');
+            musicBtnText.textContent = 'Music On 🎵';
+        } else {
+            musicBtn.classList.remove('active');
+            musicBtnText.textContent = 'Music Off';
         }
 
-        function toggleMusic() {
-            if (!audioCtx) {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            }
+        // Try autoplay immediately
+        function startMusic() {
+            if (!isMusicPlaying || !audioPlayer.paused) return;
 
+            audioPlayer.play()
+                .then(() => {
+                    console.log('🎵 Music started automatically');
+                })
+                .catch(() => {
+                    console.log('🎵 Autoplay blocked - waiting for first interaction');
+                });
+        }
+
+        // Attempt immediately on page load
+        startMusic();
+
+        // INVISIBLE TERMINAL TAP UNLOCK
+        // If autoplay is blocked, the first tap anywhere on the
+        // terminal silently starts the music.
+
+        function unlockMusicFromTerminal() {
+            if (!isMusicPlaying || !audioPlayer.paused) return;
+
+            audioPlayer.play()
+                .then(() => {
+                    console.log('🎵 Music unlocked by first interaction');
+                })
+                .catch(error => {
+                    console.log('🎵 Music still blocked:', error);
+                });
+        }
+
+        // Listen for the FIRST interaction anywhere on the page, not just the terminal
+        // { once: true } automatically removes the listener after the first trigger
+        window.addEventListener('pointerdown', unlockMusicFromTerminal, { once: true });
+        window.addEventListener('touchstart', unlockMusicFromTerminal, { once: true });
+        window.addEventListener('keydown', unlockMusicFromTerminal, { once: true });
+
+        // MUSIC BUTTON TOGGLE
+        function toggleMusic() {
             if (isMusicPlaying) {
+                // Turn music OFF
                 isMusicPlaying = false;
-                clearInterval(audioInterval);
+                audioPlayer.pause();
                 musicBtn.classList.remove('active');
                 musicBtnText.textContent = 'Music Off';
             } else {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
+                // Turn music ON
                 isMusicPlaying = true;
-                musicBtn.classList.add('active');
-                musicBtnText.textContent = 'Music On 🎵';
-
-                const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 659.25]; // C Maj 7 arpeggio
-                let step = 0;
-
-                audioInterval = setInterval(() => {
-                    if (!isMusicPlaying) return;
-                    const freq = notes[step % notes.length];
-                    playChordNote(freq, 0, 1.8);
-                    step++;
-                }, 600);
+                audioPlayer.play()
+                    .then(() => {
+                        musicBtn.classList.add('active');
+                        musicBtnText.textContent = 'Music On 🎵';
+                    })
+                    .catch(error => {
+                        console.log('Could not start music:', error);
+                    });
             }
         }
 
         musicBtn.addEventListener('click', toggleMusic);
 
+        // Cake cutting interaction
+        let cakeCut = false;
+        let cakeClickBox = null;
+        const fireworks = [];
+        let cakePromptShown = false;
+        let terminalFadeStartTime = null;
+
+        // ==========================================
+        // 🎂 CAKE PROMPT FUNCTIONS
+        // ==========================================
+
+        const cakePrompt = document.getElementById('cake-prompt');
+        const cakePromptPosition = new THREE.Vector3();
+        let cakePromptVisible = false;
+
+        function showCakePrompt() {
+            if (cakeCut || !cakePrompt) return;
+            cakePromptVisible = true;
+            cakePrompt.classList.add('show');
+            cakePrompt.setAttribute('aria-hidden', 'false');
+            updateCakePromptPosition();
+        }
+
+        function hideCakePrompt() {
+            if (!cakePrompt) return;
+            cakePromptVisible = false;
+            cakePrompt.classList.remove('show');
+            cakePrompt.setAttribute('aria-hidden', 'true');
+        }
+
+        function updateCakePromptPosition() {
+            if (!cakePromptVisible || !cakePrompt) return;
+
+            cakePromptPosition.set(0, 3.15, 0);
+            cakePromptPosition.project(camera);
+
+            const screenX = (cakePromptPosition.x * 0.5 + 0.5) * window.innerWidth;
+            const screenY = (-cakePromptPosition.y * 0.5 + 0.5) * window.innerHeight;
+
+            cakePrompt.style.left = `${screenX}px`;
+            cakePrompt.style.top = `${screenY}px`;
+        }
+
+        // Create invisible click box around cake + candle
+        const clickBoxGeom = new THREE.BoxGeometry(1.5, 1.7, 1.5);
+        const clickBoxMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0 });
+        cakeClickBox = new THREE.Mesh(clickBoxGeom, clickBoxMat);
+        cakeClickBox.position.set(0, 2.05, 0);
+        scene.add(cakeClickBox);
+
+        // Track when terminal starts fading
+        const originalAddClass = terminalOverlay.classList.add.bind(terminalOverlay.classList);
+        terminalOverlay.classList.add = function(className) {
+            originalAddClass(className);
+            if (className === 'fade-out' && !terminalFadeStartTime) {
+                terminalFadeStartTime = Date.now();
+            }
+        };
+
+        // Fireworks particle system
+        function createFireworks(x, y, z, count = 30) {
+            const colors = [0xff1493, 0xffd700, 0x00ff88, 0x00d4ff, 0xff6b6b];
+            for (let i = 0; i < count; i++) {
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const geometry = new THREE.SphereGeometry(0.08, 8, 8);
+                const material = new THREE.MeshBasicMaterial({ color });
+                const particle = new THREE.Mesh(geometry, material);
+
+                particle.position.set(x, y, z);
+                const angle = Math.random() * Math.PI * 2;
+                const elevation = Math.random() * Math.PI * 0.4 + Math.PI * 0.2;
+                const speed = 3 + Math.random() * 4;
+
+                particle.userData = {
+                    velocity: {
+                        x: Math.cos(angle) * Math.cos(elevation) * speed,
+                        y: Math.sin(elevation) * speed,
+                        z: Math.sin(angle) * Math.cos(elevation) * speed
+                    },
+                    gravity: -0.1,
+                    life: 2.5
+                };
+
+                scene.add(particle);
+                fireworks.push(particle);
+            }
+        }
+
+        // Create cake cut surface texture (gradient showing cake interior)
+        function createCakeCutTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 512;
+            const ctx = canvas.getContext('2d');
+
+            // Create gradient from dark chocolate to light cream
+            const gradient = ctx.createLinearGradient(0, 0, 0, 512);
+            gradient.addColorStop(0, '#6b3410');
+            gradient.addColorStop(0.3, '#8b5a2b');
+            gradient.addColorStop(0.7, '#a0522d');
+            gradient.addColorStop(1, '#d2b48c');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, 512, 512);
+
+            // Add cake texture details
+            for (let i = 0; i < 50; i++) {
+                ctx.fillStyle = `rgba(${100 + Math.random() * 50}, ${50 + Math.random() * 30}, ${20 + Math.random() * 20}, 0.3)`;
+                ctx.fillRect(Math.random() * 512, Math.random() * 512, 20 + Math.random() * 40, 2);
+            }
+
+            const texture = new THREE.CanvasTexture(canvas);
+            return texture;
+        }
+
+        // Blow out candle
+        function blowCandle() {
+            if (cakeCut) return;
+            cakeCut = true;
+
+            hideCakePrompt();
+
+            console.log('🕯️ BLOWING OUT CANDLE! 🎉🎉🎉 Happy Birthday!');
+
+            const candleGroup = cake.userData.candleGroup;
+            if (candleGroup) {
+                candleGroup.userData.blowOutStart = Date.now();
+            }
+
+            createFireworks(0, 2.0, 0, 60);
+            showBirthdayMessage();
+        }
+
+        // Show floating birthday message
+        function showBirthdayMessage() {
+            const oldMessage = scene.getObjectByName('birthdayMessage');
+            if (oldMessage) {
+                scene.remove(oldMessage);
+            }
+
+            const canvas = document.createElement('canvas');
+            canvas.width = 1024;
+            canvas.height = 256;
+
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            ctx.font = 'bold 80px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = '#ff69b4';
+            ctx.shadowBlur = 30;
+
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText('Happy Birthday Nikhil! ❤️', 512, 128);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+
+            const material = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0
+            });
+
+            const message = new THREE.Sprite(material);
+            message.name = 'birthdayMessage';
+            message.position.set(0, 2.8, 0);
+            message.scale.set(4.5, 1.12, 1);
+
+            message.userData.startTime = Date.now();
+            message.userData.startY = 2.8;
+
+            scene.add(message);
+        }
+
+        // Click handler for candle
+        const canvas = document.querySelector('canvas');
+        canvas.addEventListener('click', (event) => {
+            // Get mouse position relative to canvas
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+            raycaster.setFromCamera(mouse, camera);
+            const intersects = raycaster.intersectObjects([cakeClickBox], true);
+
+            if (intersects.length > 0) {
+                blowCandle();
+            }
+        });
+
         // ----------------------------------------------------
         // ANIMATION LOOP
         // ----------------------------------------------------
         let clock = new THREE.Clock();
-        let heartCloudRotation = 0;
 
         function animate() {
             requestAnimationFrame(animate);
             const delta = clock.getDelta();
             const time = clock.getElapsedTime();
 
-            // Auto-rotate camera
-            if (!isUserInteracting && !lightboxModal.classList.contains('active')) {
+            // Auto-rotate camera (pauses when user drags)
+            if (!isUserInteracting) {
                 cameraAngle += 0.08 * delta;
                 camera.position.x = Math.sin(cameraAngle) * 7.5;
                 camera.position.z = Math.cos(cameraAngle) * 7.5;
                 camera.lookAt(0, 1.4, 0);
             }
+
+            // Update cake prompt position
+            updateCakePromptPosition();
 
             // Animate Candles Flickering
             candles.forEach(c => {
@@ -1566,23 +1891,89 @@
                 c.userData.light.intensity = 1.2 + Math.sin(c.userData.phase * 1.7) * 0.3;
             });
 
+            // Candle blow-out animation
+            const candleGroup = cake.userData.candleGroup;
+
+            if (candleGroup && candleGroup.userData.blowOutStart) {
+                const elapsed = (Date.now() - candleGroup.userData.blowOutStart) / 1000;
+                const duration = 0.6;
+
+                if (elapsed < duration) {
+                    const progress = elapsed / duration;
+                    const easeProgress = 1 - (progress * progress);
+
+                    // Shrink and spin the candle
+                    candleGroup.scale.set(easeProgress, easeProgress, easeProgress);
+                    candleGroup.rotation.z += delta * 8;
+
+                    // Fade out ONLY the flame (child 1), not the wax (child 0)
+                    if (candleGroup.children[1] && candleGroup.children[1].material) {
+                        candleGroup.children[1].material.opacity = easeProgress * 0.8;
+                    }
+                } else {
+                    candleGroup.visible = false;
+                }
+            }
+
+            // Animate birthday message
+            const birthdayMessage = scene.getObjectByName('birthdayMessage');
+            if (birthdayMessage) {
+                const elapsed = (Date.now() - birthdayMessage.userData.startTime) / 1000;
+
+                // Float upward
+                birthdayMessage.position.y = birthdayMessage.userData.startY + elapsed * 0.35;
+
+                // Fade in
+                if (elapsed < 0.5) {
+                    birthdayMessage.material.opacity = elapsed / 0.5;
+                }
+                // Stay visible
+                else if (elapsed < 3) {
+                    birthdayMessage.material.opacity = 1;
+                }
+                // Fade out
+                else if (elapsed < 4) {
+                    birthdayMessage.material.opacity = 1 - (elapsed - 3);
+                }
+                // Remove
+                else {
+                    scene.remove(birthdayMessage);
+                }
+            }
+
+            // Update fireworks particles
+            for (let i = fireworks.length - 1; i >= 0; i--) {
+                const particle = fireworks[i];
+                if (particle.userData.life > 0) {
+                    particle.userData.life -= delta;
+
+                    // Update velocity with gravity
+                    particle.userData.velocity.y += particle.userData.gravity * delta;
+
+                    // Update position
+                    particle.position.x += particle.userData.velocity.x * delta;
+                    particle.position.y += particle.userData.velocity.y * delta;
+                    particle.position.z += particle.userData.velocity.z * delta;
+
+                    // Fade out
+                    particle.material.opacity = particle.userData.life / 2.5;
+
+                    // Check if particle should be removed
+                    if (particle.userData.life <= 0) {
+                        scene.remove(particle);
+                        fireworks.splice(i, 1);
+                    }
+                } else {
+                    scene.remove(particle);
+                    fireworks.splice(i, 1);
+                }
+            }
+
             // Rotate Memory Ring slowly
             memoryRing.rotation.y -= 0.06 * delta;
             memoryRing.children.forEach(polaroid => {
                 polaroid.lookAt(camera.position.x, polaroid.position.y, camera.position.z);
             });
-
-            // Animate Heart Cloud
-            heartCloudRotation += 0.4 * delta;
-            heartCloud.children.forEach(sprite => {
-                if (sprite.userData.u !== undefined) {
-                    const u = sprite.userData.u + heartCloudRotation * 0.1;
-                    const v = sprite.userData.v;
-                    const pos = heartEquation(u, v, 0.16);
-                    sprite.position.set(pos.x, pos.y + 3.2, pos.z);
-                }
-            });
-            heartCloud.position.y = -1 + Math.sin(time * 0.8) * 0.15;
 
             // Animate Sparkle Particles
             const posAttr = particleGeo.attributes.position;
@@ -1607,11 +1998,9 @@
             renderer.setSize(window.innerWidth, window.innerHeight);
         });
 
-        // Launch intro and animation loop
-        setTimeout(() => {
-            typeWriter();
-            animate();
-        }, 300);
+        // Launch intro and animation loop immediately
+        typeWriter();
+        animate();
     </script>
 </body>
 
